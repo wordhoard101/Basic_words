@@ -63,6 +63,32 @@
             box-sizing: border-box;
         }
 
+        /* --- TEST CONTROLS --- */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #eef2ff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dae0ff;
+        }
+        
+        .controls-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #555;
+            margin-right: 8px;
+        }
+
+        select {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+        }
+
         /* --- TEST MODE GRID --- */
         #quiz-view { display: block; }
         #study-view { display: none; }
@@ -160,6 +186,7 @@
             gap: 10px;
             justify-content: center;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
         }
 
         footer button {
@@ -178,14 +205,15 @@
         #btn-next { background-color: var(--primary); display: none; }
         #progress-info {
             position: absolute;
-            top: -30px;
+            top: -35px;
             left: 0;
             right: 0;
             text-align: center;
-            font-size: 0.8rem;
-            color: #666;
-            background: rgba(255,255,255,0.9);
-            padding: 5px;
+            font-size: 0.85rem;
+            color: #555;
+            background: rgba(255,255,255,0.95);
+            padding: 8px;
+            border-top: 1px solid #eee;
         }
 
     </style>
@@ -202,6 +230,16 @@
 
     <main>
         <div id="quiz-view">
+            <div class="controls-bar">
+                <div>
+                    <span class="controls-label">Order:</span>
+                    <select id="order-select" onchange="changeOrder(this.value)">
+                        <option value="az">A-Z (Alphabetical)</option>
+                        <option value="random">Randomize All</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="grid-container" id="grid"></div>
         </div>
 
@@ -217,8 +255,7 @@
     </footer>
 
     <script>
-        // --- 1. THE DATA (Extracted from your PDF) ---
-        // This includes all recoverable words from the provided file.
+        // --- 1. THE DATA (1000 Words) ---
         const rawData = [
             {en:"a (an)", cn:"一個"}, {en:"a few", cn:"一些"}, {en:"a little", cn:"一點"}, {en:"a lot", cn:"很多"},
             {en:"able", cn:"可以/會"}, {en:"about", cn:"大概"}, {en:"above", cn:"之上"}, {en:"afraid", cn:"害怕"},
@@ -480,6 +517,7 @@
         const ITEMS_PER_PAGE = 12; // Adjusted for mobile screen height
         let currentPage = 0;
         let mode = 'test'; // 'test' or 'study'
+        let currentTestList = []; // Holds the words in the current order (AZ or Random)
         
         // Element References
         const grid = document.getElementById('grid');
@@ -495,6 +533,33 @@
 
         // --- 3. FUNCTIONS ---
 
+        function init() {
+            // Default to AZ order on load
+            changeOrder('az');
+        }
+
+        // Logic to switch order (AZ vs Random)
+        function changeOrder(orderType) {
+            if (orderType === 'az') {
+                // Sort by English alphabet
+                currentTestList = [...rawData].sort((a, b) => a.en.localeCompare(b.en));
+            } else if (orderType === 'random') {
+                // Shuffle logic
+                currentTestList = shuffleArray([...rawData]);
+            }
+            // Reset to page 0 whenever order changes
+            currentPage = 0;
+            loadPage();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         function switchMode(selectedMode) {
             mode = selectedMode;
             if (mode === 'test') {
@@ -503,6 +568,8 @@
                 quizFooter.style.display = 'flex';
                 tabTest.classList.add('active');
                 tabStudy.classList.remove('active');
+                // Ensure we just reload the current test state
+                loadPage();
             } else {
                 quizView.style.display = 'none';
                 studyView.style.display = 'block';
@@ -522,10 +589,11 @@
 
             const start = currentPage * ITEMS_PER_PAGE;
             const end = start + ITEMS_PER_PAGE;
-            const currentWords = rawData.slice(start, end);
-            const totalPages = Math.ceil(rawData.length / ITEMS_PER_PAGE);
+            // USE currentTestList instead of rawData
+            const currentWords = currentTestList.slice(start, end);
+            const totalPages = Math.ceil(currentTestList.length / ITEMS_PER_PAGE);
             
-            progressLabel.innerText = `Page ${currentPage + 1} of ${totalPages} (${rawData.length} words total)`;
+            progressLabel.innerText = `Page ${currentPage + 1} of ${totalPages} (${currentTestList.length} words)`;
 
             currentWords.forEach((word, index) => {
                 const uniqueId = `input-${index}`;
@@ -596,7 +664,7 @@
         }
 
         function renderStudyList() {
-            // Sort alphabetically by English word
+            // Study list is ALWAYS sorted alphabetically
             const sortedWords = [...rawData].sort((a, b) => a.en.localeCompare(b.en));
             
             studyContainer.innerHTML = "";
@@ -611,8 +679,8 @@
             });
         }
 
-        // Initialize
-        loadPage();
+        // Initialize the app
+        init();
 
     </script>
 </body>
