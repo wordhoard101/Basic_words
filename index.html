@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Mastery 1000</title>
+    <title>English Mastery</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -13,17 +13,18 @@
             --bg: #f8f9fa;
             --card-bg: #ffffff;
             --selected: #ff9f1c;
+            --text: #2c3e50;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden; /* Prevent body scroll */
         }
 
         /* --- NAVIGATION --- */
@@ -35,10 +36,9 @@
             justify-content: space-between;
             align-items: center;
             z-index: 100;
-            flex-shrink: 0;
         }
 
-        h1 { margin: 0; font-size: 1.1rem; color: #333; }
+        h1 { margin: 0; font-size: 1.2rem; color: #333; }
 
         .btn-nav {
             background: #f1f3f5;
@@ -54,256 +54,242 @@
         /* --- MAIN AREA --- */
         main {
             flex: 1;
-            overflow-y: auto; /* Internal scroll only */
+            overflow-y: auto;
             padding: 15px;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
         }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
 
         /* --- HOME DASHBOARD --- */
-        #home-view { display: block; text-align: center; }
-
-        .mode-toggle-container {
-            background: #e9ecef;
-            padding: 5px;
-            border-radius: 30px;
-            display: inline-flex;
-            margin-bottom: 20px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .mode-btn {
-            padding: 10px 25px;
-            border-radius: 25px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: all 0.2s;
-            background: transparent;
-            color: #666;
-        }
-
-        .mode-btn.active {
+        .dashboard-card {
             background: white;
-            color: var(--primary);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .btn-letter {
-            aspect-ratio: 1;
-            background: white;
-            border: 1px solid #dee2e6;
+            padding: 2rem;
             border-radius: 12px;
-            font-size: 1.3rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .mode-btn {
+            display: block;
+            width: 100%;
+            padding: 1.2rem;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
             font-weight: bold;
-            color: var(--primary);
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+        }
+        .mode-btn:active { transform: scale(0.98); }
+        .btn-spell { background: linear-gradient(135deg, var(--primary), var(--secondary)); }
+        .btn-match { background: linear-gradient(135deg, var(--success), #20bf6b); }
+
+        /* --- SPELLING GAME (Side-by-Side) --- */
+        .spell-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 80px;
+        }
+
+        .spell-row {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: 1fr 1.2fr; /* Left (Meaning) vs Right (Input) */
+            gap: 15px;
+            align-items: center;
+        }
+
+        .spell-meaning {
+            font-size: 1rem;
+            color: #444;
+            font-weight: 500;
+            text-align: right;
+            border-right: 2px solid #f0f0f0;
+            padding-right: 15px;
+        }
+
+        .spell-input-container {
+            position: relative;
+        }
+
+        .spell-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #eee;
+            border-radius: 6px;
+            outline: none;
+            box-sizing: border-box; /* Important for width */
+        }
+        .spell-input:focus { border-color: var(--primary); }
+        .spell-input.correct { border-color: var(--success); background: #e6fffa; }
+        .spell-input.wrong { border-color: var(--danger); background: #fff5f5; }
+
+        .hint-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ffd43b;
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 0 rgba(0,0,0,0.05);
-        }
-        .btn-letter:active { transform: translateY(2px); box-shadow: none; }
-
-        .btn-random {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
-            cursor: pointer;
         }
 
-        /* --- SPELLING GAME STYLES --- */
-        #spelling-view { display: none; }
-        .spelling-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 10px;
-            padding-bottom: 60px;
-        }
-        .spelling-card {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        /* --- MATCHING GAME (Two Columns) --- */
+        .match-layout {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 15px;
+            height: calc(100vh - 140px); /* Fill available space */
+            padding-bottom: 20px;
         }
-        .spelling-input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        .spelling-input.correct { border-color: var(--success); background: #e6fffa; }
-        .spelling-input.wrong { border-color: var(--danger); background: #fff5f5; }
 
-        /* --- MATCHING GAME STYLES --- */
-        #matching-view { display: none; height: 100%; }
-        
-        .matching-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Two columns */
-            gap: 12px;
-            height: 100%;
-            align-content: start;
+        .match-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .col-header {
+            text-align: center;
+            font-weight: bold;
+            color: #888;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
         .match-card {
+            flex: 1; /* Distribute height equally */
             background: white;
             border: 2px solid #e9ecef;
             border-radius: 8px;
-            padding: 15px 5px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #444;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 50px;
-            box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+            text-align: center;
+            padding: 10px;
+            font-weight: 600;
+            color: #444;
+            cursor: pointer;
             transition: all 0.2s;
-            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            word-break: break-word;
         }
 
-        .match-card.selected {
-            border-color: var(--selected);
-            background-color: #fff9db;
-            transform: scale(1.02);
-        }
-
-        .match-card.matched {
-            border-color: var(--success);
-            background-color: var(--success);
-            color: white;
-            opacity: 0; /* Fade out */
-            pointer-events: none;
-            transition: opacity 0.5s;
-        }
-
-        .match-card.error {
-            border-color: var(--danger);
-            background-color: #ffe3e3;
-            animation: shake 0.4s;
-        }
+        .match-card.selected { border-color: var(--primary); background-color: #e7f5ff; transform: scale(0.98); }
+        .match-card.matched { opacity: 0; pointer-events: none; }
+        .match-card.error { border-color: var(--danger); background-color: #ffe3e3; animation: shake 0.4s; }
 
         @keyframes shake {
-            0% { transform: translateX(0); }
+            0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
+            75% { transform: translateX(5px); }
         }
 
         /* --- FOOTER --- */
         footer {
             background: white;
-            padding: 10px;
+            padding: 15px;
             border-top: 1px solid #eee;
             display: flex;
-            gap: 10px;
             justify-content: center;
-            z-index: 100;
-            flex-shrink: 0;
+            gap: 10px;
         }
 
-        .footer-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1rem;
-            color: white;
-            cursor: pointer;
-        }
-        .btn-green { background: var(--success); }
-        .btn-blue { background: var(--primary); }
-        
-        #progress-bar {
-            position: fixed;
-            top: 50px; /* Below nav */
-            left: 0;
-            width: 0%;
-            height: 4px;
+        .action-btn {
             background: var(--success);
-            transition: width 0.3s;
-            z-index: 99;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
         }
-
-        /* Helper for hint button */
-        .btn-hint {
-            width: 30px; height: 30px;
-            background: #eee; border: none; border-radius: 4px;
-            color: #888; font-weight: bold;
+        
+        /* Mobile adjustment for Spelling */
+        @media (max-width: 480px) {
+            .spell-row { grid-template-columns: 1fr; gap: 8px; }
+            .spell-meaning { text-align: left; border-right: none; border-bottom: 1px solid #eee; padding-bottom: 8px; padding-right: 0; }
         }
-
     </style>
 </head>
 <body>
 
-    <div id="progress-bar"></div>
-
     <nav>
-        <button class="btn-nav" id="btn-home" onclick="goHome()" style="display:none;">&#8592; Home</button>
-        <h1 id="nav-title">English Master</h1>
-        <div style="width: 60px;"></div> </nav>
+        <button class="btn-nav" id="btn-home" onclick="goHome()" style="visibility: hidden;">&#8592; Home</button>
+        <h1 id="page-title">English Mastery</h1>
+        <div style="width: 50px;"></div> </nav>
 
     <main>
-        <div id="home-view">
-            <div style="margin-top: 10px; margin-bottom: 20px;">
-                <span style="color:#888; font-size: 0.9rem; display:block; margin-bottom:10px;">Select Game Mode</span>
-                <div class="mode-toggle-container">
-                    <button class="mode-btn active" id="mode-spelling" onclick="setMode('spelling')">Spelling</button>
-                    <button class="mode-btn" id="mode-matching" onclick="setMode('matching')">Matching</button>
+        <div id="view-home" class="view-section active">
+            <div class="dashboard-card">
+                <h2>Welcome</h2>
+                <p style="color:#666; margin-bottom: 2rem;">Select a game mode to begin practice.</p>
+                
+                <button class="mode-btn btn-spell" onclick="startSpelling()">
+                    ✍️ Spelling Practice
+                </button>
+                
+                <button class="mode-btn btn-match" onclick="startMatching()">
+                    🧩 Matching Game
+                </button>
+            </div>
+            <div style="text-align: center; color: #999; font-size: 0.9rem;">
+                Loaded Words: <span id="word-count">0</span>
+            </div>
+        </div>
+
+        <div id="view-spelling" class="view-section">
+            <div id="spelling-container" class="spell-list"></div>
+        </div>
+
+        <div id="view-matching" class="view-section">
+            <div class="match-layout">
+                <div class="match-col">
+                    <div class="col-header">Words</div>
+                    <div id="col-left" class="match-col" style="height:100%"></div>
+                </div>
+                <div class="match-col">
+                    <div class="col-header">Meanings</div>
+                    <div id="col-right" class="match-col" style="height:100%"></div>
                 </div>
             </div>
-
-            <div class="category-grid" id="letter-grid">
-                </div>
-
-            <button class="btn-random" onclick="startSession('all')">
-                🎲 All Words (Random)
-            </button>
-        </div>
-
-        <div id="spelling-view">
-            <div class="spelling-grid" id="spelling-container"></div>
-        </div>
-
-        <div id="matching-view">
-            <div class="matching-container" id="matching-container"></div>
         </div>
     </main>
 
-    <footer id="game-footer" style="display:none;">
-        <button id="btn-action" class="footer-btn btn-green" onclick="handleFooterClick()">Check Answers</button>
+    <footer id="footer-controls" style="display: none;">
+        <button id="btn-check" class="action-btn" onclick="checkSpelling()">Check Answers</button>
+        <button id="btn-next-match" class="action-btn" style="display:none;" onclick="startMatching()">Next Round</button>
     </footer>
 
     <script>
         // --- DATA ---
-        // Same database as before
+        // PASTE YOUR DATA BELOW
+        // Format: { en: "English Word", cn: "Chinese Meaning" },
         const rawData = [
             {en:"a (an)", cn:"一個"}, {en:"a few", cn:"一些"}, {en:"a little", cn:"一點"}, {en:"a lot", cn:"很多"},
             {en:"able", cn:"可以/會"}, {en:"about", cn:"大概"}, {en:"above", cn:"之上"}, {en:"afraid", cn:"害怕"},
@@ -561,310 +547,198 @@
             {en:"your", cn:"你的"}, {en:"zoo", cn:"動物園"}
         ];
 
-        // --- STATE & CONFIG ---
-        let selectedMode = 'spelling'; // 'spelling' or 'matching'
-        let currentList = [];
-        let currentPage = 0;
-        let matchesFound = 0;
+        // --- STATE ---
+        let currentBatch = [];
+        const BATCH_SIZE = 6; // Number of items per round
         
-        // Items per page varies by mode
-        const SPELLING_PER_PAGE = 12;
-        const MATCHING_PER_PAGE = 5; // 5 Pairs = 10 blocks (Fits on mobile)
-
         // Matching Game State
-        let selectedCard = null; // Currently clicked card {id, type, val}
+        let selectedLeft = null;
+        let selectedRight = null;
+        let matchedCount = 0;
+        let isProcessing = false;
 
-        // --- DOM ---
-        const navTitle = document.getElementById('nav-title');
-        const btnHome = document.getElementById('btn-home');
-        const homeView = document.getElementById('home-view');
-        const spellingView = document.getElementById('spelling-view');
-        const matchingView = document.getElementById('matching-view');
-        const gameFooter = document.getElementById('game-footer');
-        const btnAction = document.getElementById('btn-action');
-        const letterGrid = document.getElementById('letter-grid');
-        const progressBar = document.getElementById('progress-bar');
-        
         // --- INIT ---
-        function init() {
-            renderLetters();
-        }
+        window.onload = function() {
+            document.getElementById('word-count').innerText = rawData.length;
+        };
 
-        // --- NAVIGATION & HOME ---
-        function setMode(mode) {
-            selectedMode = mode;
-            document.getElementById('mode-spelling').classList.toggle('active', mode === 'spelling');
-            document.getElementById('mode-matching').classList.toggle('active', mode === 'matching');
-        }
-
-        function renderLetters() {
-            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").filter(l => l !== 'X');
-            letterGrid.innerHTML = "";
-            letters.forEach(l => {
-                const btn = document.createElement('div');
-                btn.className = 'btn-letter';
-                btn.innerText = l;
-                btn.onclick = () => startSession(l);
-                letterGrid.appendChild(btn);
-            });
-        }
-
+        // --- NAVIGATION ---
         function goHome() {
-            homeView.style.display = 'block';
-            spellingView.style.display = 'none';
-            matchingView.style.display = 'none';
-            gameFooter.style.display = 'none';
-            btnHome.style.display = 'none';
-            navTitle.innerText = "English Master";
-            progressBar.style.width = '0%';
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-home').classList.add('active');
+            document.getElementById('btn-home').style.visibility = 'hidden';
+            document.getElementById('footer-controls').style.display = 'none';
+            document.getElementById('page-title').innerText = "English Mastery";
         }
 
-        function startSession(category) {
-            // Prepare List
-            if (category === 'all') {
-                currentList = shuffle([...rawData]);
-            } else {
-                currentList = rawData.filter(i => i.en.toLowerCase().startsWith(category.toLowerCase()));
-                currentList.sort((a,b) => a.en.localeCompare(b.en));
-            }
+        function showView(viewId, title) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            document.getElementById('btn-home').style.visibility = 'visible';
+            document.getElementById('page-title').innerText = title;
+        }
 
-            if (currentList.length === 0) {
-                alert("No words found.");
-                return;
-            }
-
-            // Switch View
-            homeView.style.display = 'none';
-            btnHome.style.display = 'block';
-            currentPage = 0;
-            navTitle.innerText = (category === 'all') ? "Random Test" : `Category: ${category}`;
-
-            if (selectedMode === 'spelling') {
-                startSpelling();
-            } else {
-                startMatching();
-            }
+        // --- UTILS ---
+        function getRandomItems(count) {
+            const shuffled = [...rawData].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
         }
 
         // --- SPELLING GAME ---
         function startSpelling() {
-            spellingView.style.display = 'block';
-            gameFooter.style.display = 'flex';
-            btnAction.onclick = checkSpelling;
-            btnAction.innerText = "Check Answers";
-            btnAction.className = "footer-btn btn-green";
-            loadSpellingPage();
+            currentBatch = getRandomItems(10); // 10 items for spelling
+            const container = document.getElementById('spelling-container');
+            container.innerHTML = '';
+
+            currentBatch.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'spell-row';
+                row.innerHTML = `
+                    <div class="spell-meaning">${item.cn}</div>
+                    <div class="spell-input-container">
+                        <input type="text" class="spell-input" id="spell-${index}" autocomplete="off" placeholder="Type answer...">
+                        <button class="hint-btn" tabindex="-1" onclick="showHint(${index}, '${item.en.replace(/'/g, "\\'")}')">?</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            showView('view-spelling', 'Spelling Practice');
+            document.getElementById('footer-controls').style.display = 'flex';
+            document.getElementById('btn-check').style.display = 'block';
+            document.getElementById('btn-next-match').style.display = 'none';
         }
 
-        function loadSpellingPage() {
-            const container = document.getElementById('spelling-container');
-            container.innerHTML = "";
-            btnAction.style.display = "block";
-            
-            const start = currentPage * SPELLING_PER_PAGE;
-            const chunk = currentList.slice(start, start + SPELLING_PER_PAGE);
-            
-            updateProgress(currentList.length, SPELLING_PER_PAGE);
-
-            if (chunk.length === 0) {
-                container.innerHTML = "<div style='text-align:center;width:100%;padding:20px;'>Complete!</div>";
-                btnAction.style.display = "none";
-                return;
-            }
-
-            chunk.forEach((item, idx) => {
-                const div = document.createElement('div');
-                div.className = 'spelling-card';
-                const inputId = `spell-${idx}`;
-                div.innerHTML = `
-                    <div style="flex:1;text-align:right;font-weight:bold;color:#444;">${item.cn}</div>
-                    <input id="${inputId}" class="spelling-input" data-ans="${item.en}" autocomplete="off">
-                    <button class="btn-hint" onclick="showHint('${inputId}')">?</button>
-                `;
-                container.appendChild(div);
-            });
-            
-            // Scroll top
-            document.querySelector('main').scrollTop = 0;
+        function showHint(index, answer) {
+            const input = document.getElementById(`spell-${index}`);
+            input.value = answer;
+            input.focus();
         }
 
         function checkSpelling() {
-            const inputs = document.querySelectorAll('.spelling-input');
             let allCorrect = true;
-            inputs.forEach(input => {
-                const val = input.value.trim().toLowerCase();
-                // Handle ( ) in answer
-                const rawAns = input.dataset.ans.toLowerCase();
-                let valid = [rawAns];
-                if (rawAns.includes('(')) {
-                    valid = rawAns.replace(')','').split('(').map(s=>s.trim());
-                }
+            currentBatch.forEach((item, index) => {
+                const input = document.getElementById(`spell-${index}`);
+                const userVal = input.value.trim().toLowerCase();
+                const correctVal = item.en.toLowerCase();
                 
-                input.classList.remove('correct', 'wrong');
-                if (valid.includes(val)) {
+                // Simple cleanup for comparison (remove brackets if user didn't type them, strictly speaking)
+                // But generally exact match is better for learning
+                if (userVal === correctVal) {
                     input.classList.add('correct');
+                    input.classList.remove('wrong');
                 } else {
                     input.classList.add('wrong');
+                    input.classList.remove('correct');
                     allCorrect = false;
                 }
             });
 
             if (allCorrect) {
-                btnAction.innerText = "Next Page ->";
-                btnAction.className = "footer-btn btn-blue";
-                btnAction.onclick = () => {
-                    currentPage++;
-                    startSpelling(); // reload state
-                };
+                alert("Perfect! Well done.");
+                goHome();
             }
-        }
-        
-        function showHint(id) {
-            const el = document.getElementById(id);
-            el.value = el.dataset.ans;
-            el.focus();
         }
 
         // --- MATCHING GAME ---
         function startMatching() {
-            matchingView.style.display = 'block';
-            gameFooter.style.display = 'none'; // No footer needed for matching
-            loadMatchingPage();
+            currentBatch = getRandomItems(BATCH_SIZE);
+            matchedCount = 0;
+            selectedLeft = null;
+            selectedRight = null;
+
+            // Prepare Columns
+            const leftCol = document.getElementById('col-left');
+            const rightCol = document.getElementById('col-right');
+            leftCol.innerHTML = '';
+            rightCol.innerHTML = '';
+
+            // 1. Prepare data for Left (Words) and Right (Meanings)
+            // We give them IDs to track which one matches which
+            let leftItems = currentBatch.map(item => ({ id: item.en, text: item.en, type: 'left' }));
+            let rightItems = currentBatch.map(item => ({ id: item.en, text: item.cn, type: 'right' }));
+
+            // 2. Shuffle independently
+            leftItems.sort(() => Math.random() - 0.5);
+            rightItems.sort(() => Math.random() - 0.5);
+
+            // 3. Render
+            leftItems.forEach(item => leftCol.appendChild(createMatchCard(item)));
+            rightItems.forEach(item => rightCol.appendChild(createMatchCard(item)));
+
+            showView('view-matching', 'Matching Game');
+            document.getElementById('footer-controls').style.display = 'flex';
+            document.getElementById('btn-check').style.display = 'none';
+            document.getElementById('btn-next-match').style.display = 'none'; // Only show when done
         }
 
-        function loadMatchingPage() {
-            const container = document.getElementById('matching-container');
-            container.innerHTML = "";
-            matchesFound = 0;
-            selectedCard = null;
-
-            const start = currentPage * MATCHING_PER_PAGE;
-            const chunk = currentList.slice(start, start + MATCHING_PER_PAGE);
-            
-            updateProgress(currentList.length, MATCHING_PER_PAGE);
-
-            if (chunk.length === 0) {
-                container.innerHTML = "<div style='grid-column:1/-1;text-align:center;padding:20px;'>All Matched!</div>";
-                return;
-            }
-
-            // Create pairs
-            let enCards = chunk.map((item, i) => ({ id: i, type: 'en', txt: item.en, matchId: i }));
-            let cnCards = chunk.map((item, i) => ({ id: i, type: 'cn', txt: item.cn, matchId: i }));
-            
-            // Shuffle locations
-            let allCards = [...enCards, ...cnCards];
-            // We want strict columns though?
-            // Design: Left Col (EN), Right Col (CN shuffled)
-            cnCards = shuffle(cnCards);
-
-            // Render 2 columns
-            for (let i = 0; i < chunk.length; i++) {
-                // Left Card (EN)
-                createMatchCard(container, enCards[i]);
-                // Right Card (CN)
-                createMatchCard(container, cnCards[i]);
-            }
+        function createMatchCard(item) {
+            const el = document.createElement('div');
+            el.className = 'match-card';
+            el.innerText = item.text;
+            el.dataset.id = item.id;
+            el.dataset.type = item.type;
+            el.onclick = () => handleCardClick(el);
+            return el;
         }
 
-        function createMatchCard(container, cardData) {
-            const div = document.createElement('div');
-            div.className = 'match-card';
-            div.innerText = cardData.txt;
-            div.dataset.matchId = cardData.matchId;
-            div.dataset.type = cardData.type;
-            div.onclick = (e) => handleMatchClick(e.target);
-            container.appendChild(div);
-        }
-
-        function handleMatchClick(el) {
-            if (el.classList.contains('matched')) return;
-            if (el.classList.contains('selected')) {
-                // Deselect
-                el.classList.remove('selected');
-                selectedCard = null;
-                return;
-            }
+        function handleCardClick(el) {
+            if (isProcessing || el.classList.contains('matched') || el.classList.contains('selected')) return;
 
             el.classList.add('selected');
 
-            if (!selectedCard) {
-                // First click
-                selectedCard = el;
+            if (el.dataset.type === 'left') {
+                if (selectedLeft) selectedLeft.classList.remove('selected'); // Switch selection
+                selectedLeft = el;
             } else {
-                // Second click - Check match
-                const card1 = selectedCard;
-                const card2 = el;
+                if (selectedRight) selectedRight.classList.remove('selected'); // Switch selection
+                selectedRight = el;
+            }
 
-                // Prevent clicking same type (en-en or cn-cn)
-                if (card1.dataset.type === card2.dataset.type) {
-                    card1.classList.remove('selected');
-                    selectedCard = card2; // Switch selection to new one
-                    return;
-                }
-
-                // Check ID
-                if (card1.dataset.matchId === card2.dataset.matchId) {
-                    // Match!
-                    card1.classList.remove('selected');
-                    card2.classList.remove('selected');
-                    card1.classList.add('matched');
-                    card2.classList.add('matched');
-                    selectedCard = null;
-                    matchesFound++;
-                    checkMatchingComplete();
-                } else {
-                    // Error
-                    card1.classList.add('error');
-                    card2.classList.add('error');
-                    setTimeout(() => {
-                        card1.classList.remove('selected', 'error');
-                        card2.classList.remove('selected', 'error');
-                    }, 500);
-                    selectedCard = null;
-                }
+            // Check if we have both sides selected
+            if (selectedLeft && selectedRight) {
+                checkMatch();
             }
         }
 
-        function checkMatchingComplete() {
-            // Need to match all on current page
-            // We calculate based on rendered count, or just track logic
-            // Since we know page size:
-            const start = currentPage * MATCHING_PER_PAGE;
-            const end = Math.min(start + MATCHING_PER_PAGE, currentList.length);
-            const countOnPage = end - start;
+        function checkMatch() {
+            isProcessing = true;
+            const left = selectedLeft;
+            const right = selectedRight;
 
-            if (matchesFound >= countOnPage) {
+            if (left.dataset.id === right.dataset.id) {
+                // Match!
                 setTimeout(() => {
-                    // Auto advance
-                    currentPage++;
-                    loadMatchingPage();
+                    left.classList.remove('selected');
+                    right.classList.remove('selected');
+                    left.classList.add('matched');
+                    right.classList.add('matched');
+                    
+                    selectedLeft = null;
+                    selectedRight = null;
+                    isProcessing = false;
+                    matchedCount++;
+
+                    if (matchedCount === BATCH_SIZE) {
+                        document.getElementById('btn-next-match').style.display = 'block';
+                    }
+                }, 300);
+            } else {
+                // No Match
+                setTimeout(() => {
+                    left.classList.add('error');
+                    right.classList.add('error');
+                }, 200);
+
+                setTimeout(() => {
+                    left.classList.remove('selected', 'error');
+                    right.classList.remove('selected', 'error');
+                    selectedLeft = null;
+                    selectedRight = null;
+                    isProcessing = false;
                 }, 800);
             }
         }
-
-        // --- UTILS ---
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        function updateProgress(total, perPage) {
-            const totalPages = Math.ceil(total / perPage);
-            const pct = ((currentPage + 1) / totalPages) * 100;
-            progressBar.style.width = `${pct}%`;
-        }
-
-        function handleFooterClick() {
-            // Only used for spelling check
-            // logic inside btn click handler assignment
-        }
-
-        // Start
-        init();
 
     </script>
 </body>
