@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Spelling Master 1000</title>
+    <title>Spelling Master: A-Z & Random</title>
     <style>
         :root {
             --primary: #4361ee;
             --success: #2ec4b6;
             --danger: #e63946;
-            --bg: #f8f9fa;
+            --bg: #f4f7f6;
             --card-bg: #ffffff;
+            --text: #2d3436;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 0;
             display: flex;
@@ -26,27 +28,43 @@
         /* --- NAVIGATION --- */
         nav {
             background: white;
-            padding: 10px 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            padding: 12px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 10;
         }
 
-        h1 { margin: 0; font-size: 1.2rem; color: #333; }
-        
-        .nav-buttons button {
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        h1 { margin: 0; font-size: 1.3rem; color: #333; font-weight: 700; }
+
+        /* Home Button in Nav */
+        .btn-home {
+            background: #f0f2f5;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #555;
+            display: none; /* Hidden on home screen */
+            font-size: 0.9rem;
+        }
+        .btn-home:hover { background: #e4e6eb; }
+
+        .nav-tabs button {
             background: none;
             border: 1px solid #ddd;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.9rem;
             margin-left: 5px;
+            color: #666;
         }
 
-        .nav-buttons button.active {
+        .nav-tabs button.active {
             background-color: var(--primary);
             color: white;
             border-color: var(--primary);
@@ -55,146 +73,169 @@
         /* --- MAIN CONTAINER --- */
         main {
             flex: 1;
-            overflow-y: auto; /* Scrollable area */
-            padding: 15px;
-            max-width: 1200px;
+            overflow-y: auto;
+            padding: 20px;
+            max-width: 1000px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
         }
 
-        /* --- TEST CONTROLS --- */
-        .controls-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            background: #eef2ff;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #dae0ff;
-        }
+        /* --- VIEW: HOME (CATEGORY SELECTION) --- */
+        #home-view { display: block; }
         
-        .controls-label {
-            font-size: 0.9rem;
-            font-weight: bold;
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 25px;
             color: #555;
-            margin-right: 8px;
         }
 
-        select {
-            padding: 6px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 0.95rem;
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
         }
 
-        /* --- TEST MODE GRID --- */
-        #quiz-view { display: block; }
-        #study-view { display: none; }
+        .btn-letter {
+            aspect-ratio: 1;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-letter:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-random-large {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-random-large:hover { transform: translateY(-2px); }
+
+        /* --- VIEW: QUIZ & STUDY --- */
+        #quiz-view, #study-view { display: none; }
 
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 12px;
-            padding-bottom: 80px; /* Space for footer */
+            gap: 15px;
+            padding-bottom: 80px;
         }
 
-        /* --- WORD CARDS (Quiz) --- */
+        /* --- WORD CARDS --- */
         .word-card {
             background: var(--card-bg);
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             display: flex;
-            align-items: center;
+            flex-direction: column; /* Stacked on mobile */
             gap: 8px;
+        }
+        
+        @media (min-width: 400px) {
+            .word-card { flex-direction: row; align-items: center; }
         }
 
         .cn-label {
             flex: 1;
             font-weight: 600;
             color: #444;
-            text-align: right;
-            font-size: 1rem;
-            border-right: 2px solid #eee;
-            padding-right: 10px;
-            margin-right: 5px;
+            font-size: 1.05rem;
+            min-width: 80px;
         }
 
         .input-wrapper {
             flex: 2;
             display: flex;
-            gap: 5px;
+            gap: 8px;
+            width: 100%;
         }
 
         input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 10px;
+            border: 2px solid #eee;
+            border-radius: 6px;
             font-size: 1rem;
             outline: none;
+            transition: border-color 0.2s;
         }
+        input:focus { border-color: var(--primary); }
 
-        /* Feedback Styles */
-        input.correct { border-color: var(--success); background-color: #e0fbf6; }
-        input.wrong { border-color: var(--danger); background-color: #ffeaea; }
+        input.correct { border-color: var(--success); background-color: #e0fbf6; color: #0f5132; }
+        input.wrong { border-color: var(--danger); background-color: #ffeaea; color: #842029; }
 
-        /* Help Button */
         .btn-help {
-            background: #eee;
+            background: #f1f3f5;
             border: none;
-            width: 32px;
-            height: 32px; /* Square */
-            border-radius: 4px;
-            color: #666;
+            width: 40px;
+            border-radius: 6px;
+            color: #adb5bd;
             font-weight: bold;
             cursor: pointer;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 1.2rem;
         }
-        .btn-help:hover { background: #ddd; }
+        .btn-help:hover { background: #e9ecef; color: #495057; }
 
-        /* --- STUDY MODE LIST --- */
-        .study-list {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        /* --- STUDY LIST --- */
+        .study-list { background: white; border-radius: 10px; overflow: hidden; }
         .study-row {
             display: flex;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            padding: 15px;
+            border-bottom: 1px solid #f1f1f1;
         }
-        .study-row:last-child { border-bottom: none; }
-        .study-en { flex: 1; font-weight: bold; color: var(--primary); }
-        .study-cn { flex: 1; color: #555; }
+        .study-en { flex: 1; font-weight: 700; color: var(--primary); }
+        .study-cn { flex: 1; color: #666; text-align: right; }
 
-        /* --- FOOTER CONTROLS --- */
+        /* --- FOOTER --- */
         footer {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: white;
-            padding: 12px;
-            border-top: 1px solid #ddd;
+            padding: 15px;
+            border-top: 1px solid #eee;
             display: flex;
-            gap: 10px;
             justify-content: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
             z-index: 100;
         }
 
         footer button {
-            flex: 1;
-            max-width: 200px;
-            padding: 12px;
+            width: 100%;
+            max-width: 350px;
+            padding: 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 1rem;
             cursor: pointer;
@@ -203,17 +244,17 @@
         
         #btn-check { background-color: var(--success); }
         #btn-next { background-color: var(--primary); display: none; }
+        
         #progress-info {
             position: absolute;
-            top: -35px;
-            left: 0;
-            right: 0;
+            top: -40px;
+            left: 0; right: 0;
             text-align: center;
-            font-size: 0.85rem;
-            color: #555;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.9);
             padding: 8px;
-            border-top: 1px solid #eee;
+            font-size: 0.85rem;
+            color: #666;
+            backdrop-filter: blur(5px);
         }
 
     </style>
@@ -221,41 +262,52 @@
 <body>
 
     <nav>
-        <h1>Spelling 1000</h1>
-        <div class="nav-buttons">
-            <button id="tab-test" class="active" onclick="switchMode('test')">Test</button>
-            <button id="tab-study" onclick="switchMode('study')">Study List</button>
+        <div class="nav-left">
+            <button class="btn-home" id="nav-home-btn" onclick="goHome()">&#8592; Home</button>
+            <h1>Spelling Master</h1>
+        </div>
+        <div class="nav-tabs" id="nav-tabs">
+            <button id="tab-test" onclick="switchMode('test')" style="display:none">Quiz</button>
+            <button id="tab-study" onclick="switchMode('study')" style="display:none">Review List</button>
         </div>
     </nav>
 
     <main>
-        <div id="quiz-view">
-            <div class="controls-bar">
-                <div>
-                    <span class="controls-label">Order:</span>
-                    <select id="order-select" onchange="changeOrder(this.value)">
-                        <option value="az">A-Z (Alphabetical)</option>
-                        <option value="random">Randomize All</option>
-                    </select>
-                </div>
+        <div id="home-view">
+            <div class="welcome-text">
+                <h2>Choose a category to start</h2>
+                <p>Select a letter to practice or try randomized mode.</p>
             </div>
 
+            <div class="category-grid" id="letter-grid">
+                </div>
+
+            <button class="btn-random-large" onclick="startQuiz('all')">
+                <span>🎲</span> Random Test (All Words)
+            </button>
+        </div>
+
+        <div id="quiz-view">
+            <h3 id="quiz-title" style="margin-top:0; color:#555; border-bottom:1px solid #eee; padding-bottom:10px;"></h3>
             <div class="grid-container" id="grid"></div>
         </div>
 
         <div id="study-view">
+            <h3 id="study-title" style="margin-top:0; color:#555;">Review List</h3>
             <div class="study-list" id="study-list-container"></div>
         </div>
     </main>
 
-    <footer id="quiz-footer">
+    <footer id="quiz-footer" style="display:none;">
         <div id="progress-info">Page 1</div>
         <button id="btn-check" onclick="checkAnswers()">Check Answers</button>
         <button id="btn-next" onclick="nextPage()">Next Page &rarr;</button>
     </footer>
 
     <script>
-        // --- 1. THE DATA (1000 Words) ---
+        // --- 1. THE DATA ---
+        // (Truncated for brevity in this display, but works with your full list)
+        // I've pasted the same processing logic as before.
         const rawData = [
             {en:"a (an)", cn:"一個"}, {en:"a few", cn:"一些"}, {en:"a little", cn:"一點"}, {en:"a lot", cn:"很多"},
             {en:"able", cn:"可以/會"}, {en:"about", cn:"大概"}, {en:"above", cn:"之上"}, {en:"afraid", cn:"害怕"},
@@ -513,73 +565,126 @@
             {en:"your", cn:"你的"}, {en:"zoo", cn:"動物園"}
         ];
 
-        // --- 2. CONFIG & STATE ---
-        const ITEMS_PER_PAGE = 12; // Adjusted for mobile screen height
+        // --- 2. STATE ---
+        const ITEMS_PER_PAGE = 12;
         let currentPage = 0;
-        let mode = 'test'; // 'test' or 'study'
-        let currentTestList = []; // Holds the words in the current order (AZ or Random)
-        
-        // Element References
-        const grid = document.getElementById('grid');
-        const studyContainer = document.getElementById('study-list-container');
+        let currentTestList = [];
+        let currentMode = 'home'; // home, test, study
+
+        // --- 3. DOM ELEMENTS ---
+        const homeView = document.getElementById('home-view');
         const quizView = document.getElementById('quiz-view');
         const studyView = document.getElementById('study-view');
+        const letterGrid = document.getElementById('letter-grid');
+        const quizTitle = document.getElementById('quiz-title');
+        const grid = document.getElementById('grid');
         const quizFooter = document.getElementById('quiz-footer');
         const progressLabel = document.getElementById('progress-info');
         const btnCheck = document.getElementById('btn-check');
         const btnNext = document.getElementById('btn-next');
         const tabTest = document.getElementById('tab-test');
         const tabStudy = document.getElementById('tab-study');
+        const navHomeBtn = document.getElementById('nav-home-btn');
+        const navTabs = document.getElementById('nav-tabs');
 
-        // --- 3. FUNCTIONS ---
-
+        // --- 4. INITIALIZATION ---
         function init() {
-            // Default to AZ order on load
-            changeOrder('az');
+            renderHomeButtons();
         }
 
-        // Logic to switch order (AZ vs Random)
-        function changeOrder(orderType) {
-            if (orderType === 'az') {
-                // Sort by English alphabet
-                currentTestList = [...rawData].sort((a, b) => a.en.localeCompare(b.en));
-            } else if (orderType === 'random') {
-                // Shuffle logic
+        function renderHomeButtons() {
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            // Filter out X if desired (though "x-ray" might exist)
+            // User requested excluding X
+            const filteredAlpha = alphabet.filter(l => l !== 'X');
+
+            letterGrid.innerHTML = "";
+            filteredAlpha.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-letter';
+                btn.innerText = letter;
+                btn.onclick = () => startQuiz(letter);
+                letterGrid.appendChild(btn);
+            });
+        }
+
+        // --- 5. NAVIGATION LOGIC ---
+        function goHome() {
+            currentMode = 'home';
+            homeView.style.display = 'block';
+            quizView.style.display = 'none';
+            studyView.style.display = 'none';
+            quizFooter.style.display = 'none';
+            navHomeBtn.style.display = 'none';
+            navTabs.style.display = 'none'; // Hide tabs on home
+        }
+
+        function startQuiz(category) {
+            // Setup Data based on selection
+            if (category === 'all') {
                 currentTestList = shuffleArray([...rawData]);
+                quizTitle.innerText = "Random Quiz (All Words)";
+            } else {
+                // Filter by first letter (case insensitive)
+                const letter = category.toLowerCase();
+                currentTestList = rawData.filter(item => 
+                    item.en.toLowerCase().startsWith(letter)
+                ).sort((a, b) => a.en.localeCompare(b.en));
+                
+                quizTitle.innerText = `Quiz: Letter "${category}"`;
             }
-            // Reset to page 0 whenever order changes
+
+            if (currentTestList.length === 0) {
+                alert(`No words found starting with ${category}`);
+                return;
+            }
+
+            // Switch View
+            currentMode = 'test';
             currentPage = 0;
+            
+            homeView.style.display = 'none';
+            quizView.style.display = 'block';
+            studyView.style.display = 'none';
+            quizFooter.style.display = 'flex';
+            
+            navHomeBtn.style.display = 'block';
+            navTabs.style.display = 'block';
+            
+            updateTabs();
             loadPage();
         }
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        function switchMode(selectedMode) {
-            mode = selectedMode;
+        function switchMode(mode) {
+            currentMode = mode;
             if (mode === 'test') {
                 quizView.style.display = 'block';
                 studyView.style.display = 'none';
                 quizFooter.style.display = 'flex';
-                tabTest.classList.add('active');
-                tabStudy.classList.remove('active');
-                // Ensure we just reload the current test state
-                loadPage();
-            } else {
+                // If returning to test, just reload current state
+                if (currentTestList.length === 0) {
+                    goHome(); // Safety fallback
+                }
+            } else if (mode === 'study') {
                 quizView.style.display = 'none';
                 studyView.style.display = 'block';
                 quizFooter.style.display = 'none';
+                renderStudyList();
+            }
+            updateTabs();
+        }
+
+        function updateTabs() {
+            if (currentMode === 'test') {
+                tabTest.classList.add('active');
+                tabStudy.classList.remove('active');
+            } else if (currentMode === 'study') {
                 tabTest.classList.remove('active');
                 tabStudy.classList.add('active');
-                renderStudyList();
             }
         }
 
+        // --- 6. QUIZ LOGIC ---
         function loadPage() {
             grid.innerHTML = "";
             btnNext.style.display = "none";
@@ -589,7 +694,6 @@
 
             const start = currentPage * ITEMS_PER_PAGE;
             const end = start + ITEMS_PER_PAGE;
-            // USE currentTestList instead of rawData
             const currentWords = currentTestList.slice(start, end);
             const totalPages = Math.ceil(currentTestList.length / ITEMS_PER_PAGE);
             
@@ -614,7 +718,6 @@
                 btnCheck.style.display = "none";
             }
             
-            // Scroll to top
             document.querySelector('main').scrollTop = 0;
         }
 
@@ -626,10 +729,8 @@
                 const userVal = input.value.trim().toLowerCase();
                 const answerRaw = input.dataset.answer.toLowerCase();
                 
-                // Logic to handle "bicycle (bike)" -> accept "bicycle" OR "bike"
                 let validAnswers = [answerRaw];
                 if (answerRaw.includes('(')) {
-                    // Extract parts: "bicycle (bike)" -> ["bicycle", "bike"]
                     const parts = answerRaw.replace(')', '').split('(');
                     validAnswers = parts.map(p => p.trim());
                 }
@@ -659,27 +760,39 @@
 
         function showHint(inputId) {
             const input = document.getElementById(inputId);
-            input.value = input.dataset.answer; // Reveal answer
+            input.value = input.dataset.answer;
             input.focus();
         }
 
+        // --- 7. UTILS & STUDY VIEW ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         function renderStudyList() {
-            // Study list is ALWAYS sorted alphabetically
-            const sortedWords = [...rawData].sort((a, b) => a.en.localeCompare(b.en));
+            // Study list shows currently selected words (Filtered or All)
+            const listToRender = currentTestList.length > 0 ? currentTestList : rawData;
+            // Always sort alphabetically for study mode
+            const sorted = [...listToRender].sort((a, b) => a.en.localeCompare(b.en));
             
-            studyContainer.innerHTML = "";
-            sortedWords.forEach(word => {
+            const container = document.getElementById('study-list-container');
+            container.innerHTML = "";
+            sorted.forEach(word => {
                 const row = document.createElement('div');
                 row.className = 'study-row';
                 row.innerHTML = `
                     <span class="study-en">${word.en}</span>
                     <span class="study-cn">${word.cn}</span>
                 `;
-                studyContainer.appendChild(row);
+                container.appendChild(row);
             });
         }
 
-        // Initialize the app
+        // Start
         init();
 
     </script>
