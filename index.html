@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Spelling Master 1000</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --success: #2ec4b6;
+            --danger: #e63946;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            background: white;
+            padding: 10px 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        h1 { margin: 0; font-size: 1.2rem; color: #333; }
+        
+        .nav-buttons button {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 5px;
+        }
+
+        .nav-buttons button.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* --- MAIN CONTAINER --- */
+        main {
+            flex: 1;
+            overflow-y: auto; /* Scrollable area */
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* --- TEST MODE GRID --- */
+        #quiz-view { display: block; }
+        #study-view { display: none; }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
+            padding-bottom: 80px; /* Space for footer */
+        }
+
+        /* --- WORD CARDS (Quiz) --- */
+        .word-card {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cn-label {
+            flex: 1;
+            font-weight: 600;
+            color: #444;
+            text-align: right;
+            font-size: 1rem;
+            border-right: 2px solid #eee;
+            padding-right: 10px;
+            margin-right: 5px;
+        }
+
+        .input-wrapper {
+            flex: 2;
+            display: flex;
+            gap: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        /* Feedback Styles */
+        input.correct { border-color: var(--success); background-color: #e0fbf6; }
+        input.wrong { border-color: var(--danger); background-color: #ffeaea; }
+
+        /* Help Button */
+        .btn-help {
+            background: #eee;
+            border: none;
+            width: 32px;
+            height: 32px; /* Square */
+            border-radius: 4px;
+            color: #666;
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-help:hover { background: #ddd; }
+
+        /* --- STUDY MODE LIST --- */
+        .study-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .study-row {
+            display: flex;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .study-row:last-child { border-bottom: none; }
+        .study-en { flex: 1; font-weight: bold; color: var(--primary); }
+        .study-cn { flex: 1; color: #555; }
+
+        /* --- FOOTER CONTROLS --- */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 12px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        footer button {
+            flex: 1;
+            max-width: 200px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            color: white;
+        }
+        
+        #btn-check { background-color: var(--success); }
+        #btn-next { background-color: var(--primary); display: none; }
+        #progress-info {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            background: rgba(255,255,255,0.9);
+            padding: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h1>Spelling 1000</h1>
+        <div class="nav-buttons">
+            <button id="tab-test" class="active" onclick="switchMode('test')">Test</button>
+            <button id="tab-study" onclick="switchMode('study')">Study List</button>
+        </div>
+    </nav>
+
+    <main>
+        <div id="quiz-view">
+            <div class="grid-container" id="grid"></div>
+        </div>
+
+        <div id="study-view">
+            <div class="study-list" id="study-list-container"></div>
+        </div>
+    </main>
+
+    <footer id="quiz-footer">
+        <div id="progress-info">Page 1</div>
+        <button id="btn-check" onclick="checkAnswers()">Check Answers</button>
+        <button id="btn-next" onclick="nextPage()">Next Page &rarr;</button>
+    </footer>
+
+    <script>
+        // --- 1. THE DATA (Extracted from your PDF) ---
+        // This includes all recoverable words from the provided file.
+        const rawData = [
+            {en:"a (an)", cn:"一個"}, {en:"a few", cn:"一些"}, {en:"a little", cn:"一點"}, {en:"a lot", cn:"很多"},
+            {en:"able", cn:"可以/會"}, {en:"about", cn:"大概"}, {en:"above", cn:"之上"}, {en:"afraid", cn:"害怕"},
+            {en:"after", cn:"之後"}, {en:"afternoon", cn:"下午"}, {en:"again", cn:"再一次"}, {en:"age", cn:"年紀"},
+            {en:"ago", cn:"以前"}, {en:"agree", cn:"同意"}, {en:"air", cn:"空氣"}, {en:"airplane (plane)", cn:"飛機"},
+            {en:"airport", cn:"飛機場"}, {en:"all", cn:"全部"}, {en:"almost", cn:"幾乎"}, {en:"along", cn:"沿著"},
+            {en:"already", cn:"已經"}, {en:"also", cn:"也"}, {en:"always", cn:"總是"}, {en:"am", cn:"是"},
+            {en:"America", cn:"美國"}, {en:"American", cn:"美國人"}, {en:"and", cn:"和"}, {en:"angry", cn:"生氣"},
+            {en:"animal", cn:"動物"}, {en:"another", cn:"另一個"}, {en:"answer", cn:"回答"}, {en:"any", cn:"任何"},
+            {en:"anyone", cn:"任何人"}, {en:"anything", cn:"任何東西"}, {en:"apartment", cn:"公寓"}, {en:"appear", cn:"出現"},
+            {en:"apple", cn:"蘋果"}, {en:"April", cn:"四月"}, {en:"arm", cn:"手臂"}, {en:"around", cn:"周圍"},
+            {en:"arrive", cn:"到達"}, {en:"art", cn:"美術"}, {en:"as", cn:"當做"}, {en:"ask", cn:"問"},
+            {en:"at", cn:"在"}, {en:"August", cn:"八月"}, {en:"aunt", cn:"阿姨"}, {en:"autumn (fall)", cn:"秋季"},
+            {en:"away", cn:"離開"}, {en:"axe", cn:"斧頭"}, {en:"baby", cn:"嬰兒"}, {en:"back", cn:"回/後面"},
+            {en:"bad", cn:"壞"}, {en:"bag", cn:"袋"}, {en:"bakery", cn:"麵包店"}, {en:"ball", cn:"球"},
+            {en:"banana", cn:"香蕉"}, {en:"band", cn:"樂團"}, {en:"bank", cn:"銀行"}, {en:"baseball", cn:"棒球"},
+            {en:"basket", cn:"籃子"}, {en:"basketball", cn:"籃球"}, {en:"bath", cn:"澡"}, {en:"bathroom", cn:"浴室"},
+            {en:"be", cn:"是"}, {en:"beach", cn:"海灘"}, {en:"bear", cn:"熊"}, {en:"beautiful", cn:"漂亮"},
+            {en:"because", cn:"因為"}, {en:"become", cn:"成為"}, {en:"bed", cn:"床"}, {en:"bedroom", cn:"臥室"},
+            {en:"bee", cn:"蜜蜂"}, {en:"beef", cn:"牛肉"}, {en:"before", cn:"之前"}, {en:"begin", cn:"開始"},
+            {en:"behind", cn:"後面"}, {en:"believe", cn:"相信"}, {en:"bell", cn:"鐘"}, {en:"belong", cn:"屬於"},
+            {en:"below", cn:"之下"}, {en:"belt", cn:"皮帶"}, {en:"beside", cn:"旁邊"}, {en:"between", cn:"之間"},
+            {en:"bicycle (bike)", cn:"腳踏車"}, {en:"big", cn:"大"}, {en:"bird", cn:"鳥"}, {en:"birthday", cn:"生日"},
+            {en:"bite", cn:"咬"}, {en:"black", cn:"黑色"}, {en:"blackboard", cn:"黑板"}, {en:"blind", cn:"盲"},
+            {en:"block", cn:"塊"}, {en:"blow", cn:"吹"}, {en:"blue", cn:"藍色"}, {en:"boat", cn:"船"},
+            {en:"body", cn:"身體"}, {en:"book", cn:"書"}, {en:"bookstore", cn:"書店"}, {en:"bored", cn:"感到無聊"},
+            {en:"boring", cn:"無聊"}, {en:"born", cn:"出生"}, {en:"borrow", cn:"借"}, {en:"boss", cn:"老闆"},
+            {en:"both", cn:"兩者"}, {en:"bottle", cn:"瓶"}, {en:"bottom", cn:"底下"}, {en:"bowl", cn:"碗"},
+            {en:"box", cn:"盒/箱"}, {en:"boy", cn:"男孩"}, {en:"bread", cn:"麵包"}, {en:"break", cn:"打破"},
+            {en:"breakfast", cn:"早餐"}, {en:"bridge", cn:"橋"}, {en:"bright", cn:"亮"}, {en:"bring", cn:"帶"},
+            {en:"brother", cn:"兄弟"}, {en:"brown", cn:"棕色"}, {en:"brush", cn:"刷子"}, {en:"build", cn:"蓋"},
+            {en:"burn", cn:"燒"}, {en:"bus", cn:"公車"}, {en:"business", cn:"生意"}, {en:"businessman", cn:"生意人"},
+            {en:"busy", cn:"忙"}, {en:"but", cn:"但是"}, {en:"butter", cn:"奶油"}, {en:"buy", cn:"買"},
+            {en:"by", cn:"藉由"}, {en:"cake", cn:"蛋糕"}, {en:"call", cn:"打電話"}, {en:"camera", cn:"相機"},
+            {en:"camp", cn:"露營"}, {en:"can", cn:"可以"}, {en:"candy", cn:"糖果"}, {en:"cap", cn:"帽子"},
+            {en:"car", cn:"車子"}, {en:"card", cn:"卡片"}, {en:"care", cn:"照顧"}, {en:"careful", cn:"小心"},
+            {en:"carry", cn:"提"}, {en:"case", cn:"盒子/案件"}, {en:"cat", cn:"貓"}, {en:"catch", cn:"抓"},
+            {en:"celebrate", cn:"慶祝"}, {en:"cell phone", cn:"手機"}, {en:"cent", cn:"分"}, {en:"center", cn:"中心"},
+            {en:"chair", cn:"椅子"}, {en:"chalk", cn:"粉筆"}, {en:"chance", cn:"機會"}, {en:"change", cn:"改變/零錢"},
+            {en:"cheap", cn:"便宜"}, {en:"cheat", cn:"作弊"}, {en:"check", cn:"檢查"}, {en:"cheer", cn:"激勵"},
+            {en:"cheese", cn:"起司"}, {en:"chicken", cn:"雞"}, {en:"child", cn:"小孩"}, {en:"China", cn:"中國"},
+            {en:"Chinese", cn:"中文/中國人"}, {en:"chocolate", cn:"巧克力"}, {en:"chopsticks", cn:"筷子"}, {en:"Christmas", cn:"聖誕節"},
+            {en:"church", cn:"教堂"}, {en:"circle", cn:"圓圈"}, {en:"city", cn:"城市"}, {en:"class", cn:"班級"},
+            {en:"classmate", cn:"同學"}, {en:"classroom", cn:"教室"}, {en:"clean", cn:"乾淨"}, {en:"clear", cn:"清楚"},
+            {en:"climb", cn:"爬"}, {en:"clock", cn:"鐘"}, {en:"close", cn:"關"}, {en:"clothes", cn:"衣服"},
+            {en:"cloudy", cn:"多雲"}, {en:"club", cn:"社團"}, {en:"coat", cn:"外套"}, {en:"coffee", cn:"咖啡"},
+            {en:"Coke", cn:"可樂"}, {en:"cold", cn:"冷"}, {en:"collect", cn:"收集"}, {en:"color", cn:"顏色"},
+            {en:"come", cn:"來"}, {en:"comfortable", cn:"舒服"}, {en:"comic", cn:"漫畫"}, {en:"common", cn:"普通"},
+            {en:"computer", cn:"電腦"}, {en:"convenient", cn:"方便"}, {en:"cook", cn:"煮"}, {en:"cookie", cn:"餅乾"},
+            {en:"cool", cn:"涼/酷"}, {en:"copy", cn:"複製"}, {en:"corner", cn:"角落"}, {en:"correct", cn:"正確"},
+            {en:"cost", cn:"成本"}, {en:"couch", cn:"沙發"}, {en:"count", cn:"數"}, {en:"country", cn:"國家"},
+            {en:"course", cn:"課程"}, {en:"cousin", cn:"表兄弟姐妹"}, {en:"cover", cn:"封面/蓋"}, {en:"cow", cn:"牛"},
+            {en:"crazy", cn:"瘋狂"}, {en:"cross", cn:"越過"}, {en:"cry", cn:"哭"}, {en:"cup", cn:"杯"},
+            {en:"cut", cn:"剪"}, {en:"cute", cn:"可愛"}, {en:"dance", cn:"跳舞"}, {en:"dangerous", cn:"危險"},
+            {en:"dark", cn:"黑暗"}, {en:"date", cn:"日期/約會"}, {en:"daughter", cn:"女兒"}, {en:"day", cn:"天/日"},
+            {en:"dead", cn:"死"}, {en:"dear", cn:"親愛"}, {en:"December", cn:"十二月"}, {en:"decide", cn:"決定"},
+            {en:"delicious", cn:"美味"}, {en:"department store", cn:"百貨公司"}, {en:"desk", cn:"書桌"}, {en:"dictionary", cn:"字典"},
+            {en:"die", cn:"死"}, {en:"different", cn:"不同"}, {en:"difficult", cn:"困難"}, {en:"dig", cn:"挖"},
+            {en:"dining room", cn:"飯廳"}, {en:"dinner", cn:"晚餐"}, {en:"dirty", cn:"髒"}, {en:"dish", cn:"盤/菜"},
+            {en:"do", cn:"做"}, {en:"doctor", cn:"醫生"}, {en:"dog", cn:"狗"}, {en:"doll", cn:"娃娃"},
+            {en:"dollar", cn:"元"}, {en:"door", cn:"門"}, {en:"down", cn:"下"}, {en:"dozen", cn:"一打"},
+            {en:"draw", cn:"畫"}, {en:"dream", cn:"夢"}, {en:"dress", cn:"洋裝/穿衣"}, {en:"drink", cn:"喝"},
+            {en:"drive", cn:"開車"}, {en:"driver", cn:"司機"}, {en:"drop", cn:"掉落"}, {en:"dry", cn:"乾"},
+            {en:"during", cn:"期間"}, {en:"each", cn:"每個"}, {en:"ear", cn:"耳朵"}, {en:"early", cn:"早"},
+            {en:"earth", cn:"地球"}, {en:"east", cn:"東"}, {en:"easy", cn:"簡單"}, {en:"eat", cn:"吃"},
+            {en:"egg", cn:"蛋"}, {en:"eight", cn:"八"}, {en:"eighteen", cn:"十八"}, {en:"eighty", cn:"八十"},
+            {en:"either", cn:"兩者之一"}, {en:"elephant", cn:"大象"}, {en:"eleven", cn:"十一"}, {en:"else", cn:"其他"},
+            {en:"e-mail", cn:"電子郵件"}, {en:"end", cn:"結束"}, {en:"English", cn:"英文"}, {en:"enjoy", cn:"享受"},
+            {en:"enough", cn:"足夠"}, {en:"enter", cn:"進入"}, {en:"eraser", cn:"橡皮擦"}, {en:"eve", cn:"前夕"},
+            {en:"even", cn:"甚至/平手"}, {en:"evening", cn:"傍晚"}, {en:"ever", cn:"曾經"}, {en:"every", cn:"每個"},
+            {en:"everyone", cn:"每個人"}, {en:"everything", cn:"每件事"}, {en:"example", cn:"例子"}, {en:"excellent", cn:"傑出"},
+            {en:"except", cn:"除了"}, {en:"excited", cn:"興奮(人)"}, {en:"exciting", cn:"刺激(事)"}, {en:"excuse", cn:"藉口/原諒"},
+            {en:"exercise", cn:"運動"}, {en:"expensive", cn:"昂貴"}, {en:"experience", cn:"經驗"}, {en:"eye", cn:"眼睛"},
+            {en:"face", cn:"臉"}, {en:"fact", cn:"事實"}, {en:"factory", cn:"工廠"}, {en:"fall", cn:"秋天/跌倒"},
+            {en:"family", cn:"家庭"}, {en:"famous", cn:"有名"}, {en:"fan", cn:"迷/風扇"}, {en:"farm", cn:"農場"},
+            {en:"farmer", cn:"農夫"}, {en:"fast", cn:"快"}, {en:"fat", cn:"胖"}, {en:"father", cn:"父親"},
+            {en:"favorite", cn:"最喜愛"}, {en:"February", cn:"二月"}, {en:"feel", cn:"感覺"}, {en:"festival", cn:"節慶"},
+            {en:"few", cn:"很少"}, {en:"fifteen", cn:"十五"}, {en:"fifth", cn:"第五"}, {en:"fifty", cn:"五十"},
+            {en:"fill", cn:"裝滿"}, {en:"finally", cn:"終於"}, {en:"find", cn:"找"}, {en:"fine", cn:"好/罰款"},
+            {en:"finger", cn:"手指"}, {en:"finish", cn:"完成"}, {en:"fire", cn:"火"}, {en:"first", cn:"第一"},
+            {en:"fish", cn:"魚"}, {en:"fisherman", cn:"漁夫"}, {en:"five", cn:"五"}, {en:"fix", cn:"修理"},
+            {en:"floor", cn:"地板/樓層"}, {en:"flower", cn:"花"}, {en:"fly", cn:"飛/蒼蠅"}, {en:"follow", cn:"跟隨"},
+            {en:"food", cn:"食物"}, {en:"foot", cn:"腳"}, {en:"for", cn:"為了/給"}, {en:"foreign", cn:"外國的"},
+            {en:"foreigner", cn:"外國人"}, {en:"forget", cn:"忘記"}, {en:"fork", cn:"叉子"}, {en:"forty", cn:"四十"},
+            {en:"four", cn:"四"}, {en:"fourteen", cn:"十四"}, {en:"fourth", cn:"第四"}, {en:"free", cn:"免費/自由"},
+            {en:"fresh", cn:"新鮮"}, {en:"Friday", cn:"星期五"}, {en:"friend", cn:"朋友"}, {en:"friendly", cn:"友善"},
+            {en:"from", cn:"來自"}, {en:"front", cn:"前面"}, {en:"fruit", cn:"水果"}, {en:"full", cn:"滿"},
+            {en:"fun", cn:"樂趣"}, {en:"funny", cn:"好笑"}, {en:"future", cn:"未來"}, {en:"game", cn:"遊戲"},
+            {en:"garbage", cn:"垃圾"}, {en:"garden", cn:"花園"}, {en:"gas", cn:"瓦斯"}, {en:"get", cn:"得到"},
+            {en:"ghost", cn:"鬼"}, {en:"gift", cn:"禮物"}, {en:"girl", cn:"女孩"}, {en:"give", cn:"給"},
+            {en:"glad", cn:"高興"}, {en:"glass", cn:"玻璃杯"}, {en:"glasses", cn:"眼鏡"}, {en:"glove", cn:"手套"},
+            {en:"go", cn:"去"}, {en:"goat", cn:"山羊"}, {en:"good", cn:"好"}, {en:"goodbye", cn:"再見"},
+            {en:"grade", cn:"成績/年級"}, {en:"grandfather", cn:"祖父"}, {en:"grandmother", cn:"祖母"}, {en:"grass", cn:"草"},
+            {en:"gray", cn:"灰色"}, {en:"great", cn:"很棒"}, {en:"green", cn:"綠色"}, {en:"ground", cn:"地面"},
+            {en:"group", cn:"團體"}, {en:"grow", cn:"生長"}, {en:"guess", cn:"猜"}, {en:"habit", cn:"習慣"},
+            {en:"hair", cn:"頭髮"}, {en:"half", cn:"一半"}, {en:"ham", cn:"火腿"}, {en:"hamburger", cn:"漢堡"},
+            {en:"hand", cn:"手"}, {en:"handsome", cn:"英俊"}, {en:"happen", cn:"發生"}, {en:"happy", cn:"快樂"},
+            {en:"hard", cn:"硬/難"}, {en:"hat", cn:"帽子"}, {en:"hate", cn:"討厭"}, {en:"have", cn:"有"},
+            {en:"he", cn:"他"}, {en:"head", cn:"頭"}, {en:"headache", cn:"頭痛"}, {en:"health", cn:"健康"},
+            {en:"healthy", cn:"健康的"}, {en:"hear", cn:"聽見"}, {en:"heart", cn:"心"}, {en:"heat", cn:"熱度"},
+            {en:"heavy", cn:"重"}, {en:"hello", cn:"你好"}, {en:"help", cn:"幫忙"}, {en:"helpful", cn:"有幫助"},
+            {en:"here", cn:"這裡"}, {en:"hi", cn:"嗨"}, {en:"hide", cn:"躲藏"}, {en:"high", cn:"高"},
+            {en:"hill", cn:"山丘"}, {en:"history", cn:"歷史"}, {en:"hit", cn:"打/擊"}, {en:"hobby", cn:"嗜好"},
+            {en:"hold", cn:"握/舉辦"}, {en:"holiday", cn:"假日"}, {en:"home", cn:"家"}, {en:"homework", cn:"功課"},
+            {en:"honest", cn:"誠實"}, {en:"hope", cn:"希望"}, {en:"horse", cn:"馬"}, {en:"hospital", cn:"醫院"},
+            {en:"hot", cn:"熱"}, {en:"hot dog", cn:"熱狗"}, {en:"hotel", cn:"旅館"}, {en:"hour", cn:"小時"},
+            {en:"house", cn:"房子"}, {en:"how", cn:"如何"}, {en:"however", cn:"然而"}, {en:"hundred", cn:"百"},
+            {en:"hungry", cn:"餓"}, {en:"hurry", cn:"趕快"}, {en:"hurt", cn:"受傷"}, {en:"husband", cn:"丈夫"},
+            {en:"I", cn:"我"}, {en:"ice", cn:"冰"}, {en:"ice cream", cn:"冰淇淋"}, {en:"idea", cn:"主意"},
+            {en:"if", cn:"如果"}, {en:"important", cn:"重要"}, {en:"in", cn:"在..裡面"}, {en:"inside", cn:"裡面"},
+            {en:"interest", cn:"興趣"}, {en:"interested", cn:"感興趣"}, {en:"interesting", cn:"有趣"}, {en:"Internet", cn:"網路"},
+            {en:"into", cn:"進入"}, {en:"island", cn:"島"}, {en:"it", cn:"它"}, {en:"jacket", cn:"夾克"},
+            {en:"January", cn:"一月"}, {en:"jeans", cn:"牛仔褲"}, {en:"job", cn:"工作"}, {en:"jog", cn:"慢跑"},
+            {en:"join", cn:"參加"}, {en:"joy", cn:"喜悅"}, {en:"juice", cn:"果汁"}, {en:"July", cn:"七月"},
+            {en:"jump", cn:"跳"}, {en:"June", cn:"六月"}, {en:"junior high school", cn:"國中"}, {en:"just", cn:"剛剛/只是"},
+            {en:"kangaroo", cn:"袋鼠"}, {en:"keep", cn:"保持"}, {en:"key", cn:"鑰匙"}, {en:"kick", cn:"踢"},
+            {en:"kid", cn:"小孩"}, {en:"kill", cn:"殺"}, {en:"kilogram", cn:"公斤"}, {en:"kind", cn:"種類/仁慈"},
+            {en:"king", cn:"國王"}, {en:"kiss", cn:"親吻"}, {en:"kitchen", cn:"廚房"}, {en:"kite", cn:"風箏"},
+            {en:"knee", cn:"膝蓋"}, {en:"knife", cn:"刀"}, {en:"knock", cn:"敲"}, {en:"know", cn:"知道"},
+            {en:"knowledge", cn:"知識"}, {en:"lake", cn:"湖"}, {en:"lamp", cn:"檯燈"}, {en:"land", cn:"土地"},
+            {en:"language", cn:"語言"}, {en:"large", cn:"大的"}, {en:"last", cn:"上一個/持續"}, {en:"late", cn:"遲到"},
+            {en:"later", cn:"稍後"}, {en:"laugh", cn:"笑"}, {en:"lazy", cn:"懶惰"}, {en:"lead", cn:"帶領"},
+            {en:"leader", cn:"領袖"}, {en:"leaf", cn:"葉子"}, {en:"learn", cn:"學習"}, {en:"least", cn:"最少"},
+            {en:"leave", cn:"離開"}, {en:"left", cn:"左邊"}, {en:"leg", cn:"腿"}, {en:"lemon", cn:"檸檬"},
+            {en:"lend", cn:"借出"}, {en:"less", cn:"較少"}, {en:"lesson", cn:"課程"}, {en:"let", cn:"讓"},
+            {en:"letter", cn:"信/字母"}, {en:"library", cn:"圖書館"}, {en:"lid", cn:"蓋子"}, {en:"lie", cn:"說謊/躺"},
+            {en:"life", cn:"生活/生命"}, {en:"light", cn:"光/輕"}, {en:"like", cn:"喜歡/像"}, {en:"line", cn:"線/排隊"},
+            {en:"lion", cn:"獅子"}, {en:"lip", cn:"嘴唇"}, {en:"list", cn:"清單"}, {en:"listen", cn:"聽"},
+            {en:"little", cn:"小的"}, {en:"live", cn:"居住"}, {en:"living room", cn:"客廳"}, {en:"lonely", cn:"寂寞"},
+            {en:"long", cn:"長"}, {en:"look", cn:"看"}, {en:"lose", cn:"輸/遺失"}, {en:"loud", cn:"大聲"},
+            {en:"love", cn:"愛"}, {en:"low", cn:"低"}, {en:"lucky", cn:"幸運"}, {en:"lunch", cn:"午餐"},
+            {en:"machine", cn:"機器"}, {en:"magic", cn:"魔術"}, {en:"mail", cn:"郵件"}, {en:"mailman", cn:"郵差"},
+            {en:"make", cn:"製作"}, {en:"man", cn:"男人"}, {en:"many", cn:"許多"}, {en:"map", cn:"地圖"},
+            {en:"March", cn:"三月"}, {en:"mark", cn:"記號/分數"}, {en:"market", cn:"市場"}, {en:"married", cn:"已婚"},
+            {en:"math", cn:"數學"}, {en:"matter", cn:"事情"}, {en:"May", cn:"五月"}, {en:"may", cn:"可能"},
+            {en:"maybe", cn:"也許"}, {en:"meal", cn:"餐"}, {en:"mean", cn:"意思/刻薄"}, {en:"meat", cn:"肉"},
+            {en:"medicine", cn:"藥"}, {en:"medium", cn:"中等/五分熟"}, {en:"meet", cn:"遇見"}, {en:"meeting", cn:"會議"},
+            {en:"menu", cn:"菜單"}, {en:"mile", cn:"英哩"}, {en:"milk", cn:"牛奶"}, {en:"million", cn:"百萬"},
+            {en:"mind", cn:"介意/心智"}, {en:"minute", cn:"分鐘"}, {en:"miss", cn:"想念/錯過"}, {en:"Miss", cn:"小姐"},
+            {en:"mistake", cn:"錯誤"}, {en:"modern", cn:"現代"}, {en:"moment", cn:"時刻"}, {en:"Monday", cn:"星期一"},
+            {en:"money", cn:"錢"}, {en:"monkey", cn:"猴子"}, {en:"month", cn:"月份"}, {en:"moon", cn:"月亮"},
+            {en:"more", cn:"更多"}, {en:"morning", cn:"早上"}, {en:"most", cn:"大部分"}, {en:"mother", cn:"母親"},
+            {en:"motorcycle", cn:"摩托車"}, {en:"mountain", cn:"山"}, {en:"mouse", cn:"老鼠"}, {en:"mouth", cn:"嘴巴"},
+            {en:"move", cn:"移動"}, {en:"movie", cn:"電影"}, {en:"Mr.", cn:"先生"}, {en:"Mrs.", cn:"太太"},
+            {en:"Ms.", cn:"女士"}, {en:"much", cn:"許多"}, {en:"museum", cn:"博物館"}, {en:"music", cn:"音樂"},
+            {en:"must", cn:"必須"}, {en:"name", cn:"名字"}, {en:"national", cn:"國家的"}, {en:"near", cn:"靠近"},
+            {en:"neck", cn:"脖子"}, {en:"need", cn:"需要"}, {en:"neighbor", cn:"鄰居"}, {en:"never", cn:"從不"},
+            {en:"new", cn:"新"}, {en:"news", cn:"新聞"}, {en:"newspaper", cn:"報紙"}, {en:"next", cn:"下一個"},
+            {en:"nice", cn:"好/這"}, {en:"night", cn:"晚上"}, {en:"nine", cn:"九"}, {en:"nineteen", cn:"十九"},
+            {en:"ninety", cn:"九十"}, {en:"ninth", cn:"第九"}, {en:"no", cn:"不"}, {en:"nobody", cn:"沒人"},
+            {en:"nod", cn:"點頭"}, {en:"noise", cn:"噪音"}, {en:"noodle", cn:"麵"}, {en:"noon", cn:"中午"},
+            {en:"north", cn:"北"}, {en:"nose", cn:"鼻子"}, {en:"not", cn:"不"}, {en:"notebook", cn:"筆記本"},
+            {en:"nothing", cn:"沒什麼"}, {en:"notice", cn:"注意/公告"}, {en:"November", cn:"十一月"}, {en:"now", cn:"現在"},
+            {en:"number", cn:"數字"}, {en:"nurse", cn:"護士"}, {en:"o'clock", cn:"點鐘"}, {en:"October", cn:"十月"},
+            {en:"of", cn:"的"}, {en:"off", cn:"關閉/離開"}, {en:"office", cn:"辦公室"}, {en:"officer", cn:"官員/警察"},
+            {en:"often", cn:"時常"}, {en:"oil", cn:"油"}, {en:"OK", cn:"好"}, {en:"old", cn:"老/舊"},
+            {en:"on", cn:"在..上面"}, {en:"once", cn:"一次"}, {en:"one", cn:"一"}, {en:"only", cn:"只有"},
+            {en:"open", cn:"打開"}, {en:"or", cn:"或者"}, {en:"orange", cn:"柳橙/橘色"}, {en:"order", cn:"點餐/順序"},
+            {en:"other", cn:"其他"}, {en:"out", cn:"出去"}, {en:"outside", cn:"外面"}, {en:"over", cn:"結束/越過"},
+            {en:"own", cn:"自己的"}, {en:"pack", cn:"打包"}, {en:"package", cn:"包裹"}, {en:"page", cn:"頁"},
+            {en:"paint", cn:"油漆/畫畫"}, {en:"pair", cn:"一雙"}, {en:"pants", cn:"褲子"}, {en:"paper", cn:"紙"},
+            {en:"parent", cn:"雙親"}, {en:"park", cn:"公園/停車"}, {en:"part", cn:"部分"}, {en:"party", cn:"派對"},
+            {en:"pass", cn:"通過"}, {en:"past", cn:"過去"}, {en:"pay", cn:"付錢"}, {en:"PE", cn:"體育"},
+            {en:"pen", cn:"原子筆"}, {en:"pencil", cn:"鉛筆"}, {en:"people", cn:"人們"}, {en:"perhaps", cn:"或許"},
+            {en:"person", cn:"人"}, {en:"pet", cn:"寵物"}, {en:"phone", cn:"電話"}, {en:"piano", cn:"鋼琴"},
+            {en:"pick", cn:"撿/選"}, {en:"picnic", cn:"野餐"}, {en:"picture", cn:"圖片/照片"}, {en:"pie", cn:"派"},
+            {en:"piece", cn:"一張/片"}, {en:"pig", cn:"豬"}, {en:"pink", cn:"粉紅"}, {en:"pizza", cn:"披薩"},
+            {en:"place", cn:"地方"}, {en:"plan", cn:"計畫"}, {en:"play", cn:"玩"}, {en:"player", cn:"選手"},
+            {en:"playground", cn:"操場"}, {en:"please", cn:"請"}, {en:"pocket", cn:"口袋"}, {en:"point", cn:"點/指"},
+            {en:"police", cn:"警方"}, {en:"polite", cn:"有禮貌"}, {en:"poor", cn:"窮/可憐"}, {en:"popcorn", cn:"爆米花"},
+            {en:"popular", cn:"受歡迎"}, {en:"pork", cn:"豬肉"}, {en:"possible", cn:"可能"}, {en:"post office", cn:"郵局"},
+            {en:"postcard", cn:"明信片"}, {en:"pound", cn:"磅"}, {en:"practice", cn:"練習"}, {en:"prepare", cn:"準備"},
+            {en:"present", cn:"禮物/現在"}, {en:"pretty", cn:"漂亮"}, {en:"price", cn:"價格"}, {en:"problem", cn:"問題"},
+            {en:"program", cn:"節目/程式"}, {en:"proud", cn:"驕傲"}, {en:"public", cn:"公眾"}, {en:"pull", cn:"拉"},
+            {en:"purple", cn:"紫色"}, {en:"push", cn:"推"}, {en:"put", cn:"放"}, {en:"queen", cn:"皇后"},
+            {en:"question", cn:"問題"}, {en:"quick", cn:"快"}, {en:"quiet", cn:"安靜"}, {en:"quite", cn:"相當"},
+            {en:"rabbit", cn:"兔子"}, {en:"radio", cn:"收音機"}, {en:"railway", cn:"鐵路"}, {en:"rain", cn:"雨"},
+            {en:"rainbow", cn:"彩虹"}, {en:"rainy", cn:"下雨的"}, {en:"read", cn:"讀"}, {en:"ready", cn:"準備好"},
+            {en:"real", cn:"真實"}, {en:"really", cn:"真地"}, {en:"red", cn:"紅色"}, {en:"refrigerator", cn:"冰箱"},
+            {en:"remember", cn:"記得"}, {en:"repeat", cn:"重複"}, {en:"rest", cn:"休息"}, {en:"restaurant", cn:"餐廳"},
+            {en:"restroom", cn:"洗手間"}, {en:"rice", cn:"飯"}, {en:"rich", cn:"有錢"}, {en:"ride", cn:"騎"},
+            {en:"right", cn:"右邊/對"}, {en:"ring", cn:"戒指/鈴聲"}, {en:"river", cn:"河"}, {en:"road", cn:"路"},
+            {en:"robot", cn:"機器人"}, {en:"room", cn:"房間"}, {en:"rope", cn:"繩子"}, {en:"rose", cn:"玫瑰"},
+            {en:"round", cn:"圓的"}, {en:"rule", cn:"規則"}, {en:"ruler", cn:"尺/統治者"}, {en:"run", cn:"跑"},
+            {en:"sad", cn:"難過"}, {en:"safe", cn:"安全"}, {en:"salad", cn:"沙拉"}, {en:"sale", cn:"拍賣"},
+            {en:"salt", cn:"鹽"}, {en:"same", cn:"相同"}, {en:"sandwich", cn:"三明治"}, {en:"Saturday", cn:"星期六"},
+            {en:"save", cn:"存/救"}, {en:"say", cn:"說"}, {en:"school", cn:"學校"}, {en:"sea", cn:"海"},
+            {en:"season", cn:"季節"}, {en:"seat", cn:"座位"}, {en:"second", cn:"第二/秒"}, {en:"see", cn:"看見"},
+            {en:"seldom", cn:"很少"}, {en:"sell", cn:"賣"}, {en:"send", cn:"寄/送"}, {en:"senior high school", cn:"高中"},
+            {en:"sentence", cn:"句子"}, {en:"September", cn:"九月"}, {en:"serious", cn:"嚴肅/嚴重"}, {en:"seven", cn:"七"},
+            {en:"seventeen", cn:"十七"}, {en:"seventh", cn:"第七"}, {en:"seventy", cn:"七十"}, {en:"several", cn:"幾個"},
+            {en:"shake", cn:"搖"}, {en:"shall", cn:"將"}, {en:"shape", cn:"形狀"}, {en:"share", cn:"分享"},
+            {en:"she", cn:"她"}, {en:"sheep", cn:"綿羊"}, {en:"ship", cn:"大船"}, {en:"shirt", cn:"襯衫"},
+            {en:"shoe", cn:"鞋子"}, {en:"shop", cn:"商店"}, {en:"shopkeeper", cn:"店主"}, {en:"short", cn:"短/矮"},
+            {en:"should", cn:"應該"}, {en:"shoulder", cn:"肩膀"}, {en:"show", cn:"表演/展示"}, {en:"shy", cn:"害羞"},
+            {en:"sick", cn:"生病"}, {en:"side", cn:"邊"}, {en:"sidewalk", cn:"人行道"}, {en:"sight", cn:"視力"},
+            {en:"sign", cn:"簽名/標誌"}, {en:"simple", cn:"簡單"}, {en:"since", cn:"自從"}, {en:"sing", cn:"唱"},
+            {en:"singer", cn:"歌手"}, {en:"sister", cn:"姊妹"}, {en:"sit", cn:"坐"}, {en:"six", cn:"六"},
+            {en:"sixteen", cn:"十六"}, {en:"sixth", cn:"第六"}, {en:"sixty", cn:"六十"}, {en:"size", cn:"尺寸"},
+            {en:"skirt", cn:"裙子"}, {en:"sky", cn:"天空"}, {en:"sleep", cn:"睡"}, {en:"slow", cn:"慢"},
+            {en:"small", cn:"小"}, {en:"smart", cn:"聰明"}, {en:"smell", cn:"聞"}, {en:"smile", cn:"微笑"},
+            {en:"smoke", cn:"煙"}, {en:"snack", cn:"點心"}, {en:"snake", cn:"蛇"}, {en:"snow", cn:"雪"},
+            {en:"so", cn:"所以/如此"}, {en:"socks", cn:"襪子"}, {en:"sofa", cn:"沙發"}, {en:"soldier", cn:"士兵"},
+            {en:"some", cn:"一些"}, {en:"someone", cn:"某人"}, {en:"something", cn:"某事"}, {en:"sometimes", cn:"有時"},
+            {en:"somewhere", cn:"某處"}, {en:"son", cn:"兒子"}, {en:"song", cn:"歌"}, {en:"soon", cn:"很快"},
+            {en:"sorry", cn:"抱歉"}, {en:"sound", cn:"聲音"}, {en:"soup", cn:"湯"}, {en:"south", cn:"南"},
+            {en:"space", cn:"空間/太空"}, {en:"speak", cn:"說"}, {en:"special", cn:"特別"}, {en:"spell", cn:"拼字"},
+            {en:"spend", cn:"花費"}, {en:"spoon", cn:"湯匙"}, {en:"sports", cn:"運動"}, {en:"spring", cn:"春天"},
+            {en:"square", cn:"正方形"}, {en:"stand", cn:"站"}, {en:"star", cn:"星星"}, {en:"start", cn:"開始"},
+            {en:"station", cn:"車站"}, {en:"stay", cn:"停留"}, {en:"steak", cn:"牛排"}, {en:"still", cn:"仍然"},
+            {en:"stomach", cn:"胃"}, {en:"stop", cn:"停止"}, {en:"store", cn:"商店"}, {en:"story", cn:"故事"},
+            {en:"strange", cn:"奇怪"}, {en:"stranger", cn:"陌生人"}, {en:"street", cn:"街道"}, {en:"strong", cn:"強壯"},
+            {en:"student", cn:"學生"}, {en:"study", cn:"研讀"}, {en:"stupid", cn:"笨"}, {en:"successful", cn:"成功"},
+            {en:"sugar", cn:"糖"}, {en:"summer", cn:"夏天"}, {en:"sun", cn:"太陽"}, {en:"Sunday", cn:"星期日"},
+            {en:"sunny", cn:"晴朗"}, {en:"supermarket", cn:"超市"}, {en:"sure", cn:"確定"}, {en:"surprise", cn:"驚喜"},
+            {en:"surprised", cn:"感到驚訝"}, {en:"sweater", cn:"毛衣"}, {en:"sweet", cn:"甜"}, {en:"swim", cn:"游泳"},
+            {en:"table", cn:"桌子"}, {en:"Taiwan", cn:"台灣"}, {en:"take", cn:"拿/搭乘"}, {en:"talk", cn:"講話"},
+            {en:"tall", cn:"高"}, {en:"tape", cn:"膠帶/錄音帶"}, {en:"taste", cn:"味道"}, {en:"taxi", cn:"計程車"},
+            {en:"tea", cn:"茶"}, {en:"teach", cn:"教"}, {en:"teacher", cn:"老師"}, {en:"team", cn:"隊伍"},
+            {en:"teenager", cn:"青少年"}, {en:"telephone", cn:"電話"}, {en:"television", cn:"電視"}, {en:"tell", cn:"告訴"},
+            {en:"ten", cn:"十"}, {en:"tennis", cn:"網球"}, {en:"tenth", cn:"第十"}, {en:"test", cn:"考試"},
+            {en:"than", cn:"比"}, {en:"thank", cn:"謝謝"}, {en:"that", cn:"那個"}, {en:"the", cn:"這/那"},
+            {en:"theater", cn:"戲院"}, {en:"then", cn:"然後"}, {en:"there", cn:"那裡"}, {en:"these", cn:"這些"},
+            {en:"they", cn:"他們"}, {en:"thick", cn:"厚"}, {en:"thin", cn:"瘦/薄"}, {en:"thing", cn:"事情"},
+            {en:"think", cn:"想"}, {en:"third", cn:"第三"}, {en:"thirsty", cn:"口渴"}, {en:"thirteen", cn:"十三"},
+            {en:"thirty", cn:"三十"}, {en:"this", cn:"這個"}, {en:"those", cn:"那些"}, {en:"though", cn:"雖然"},
+            {en:"thousand", cn:"千"}, {en:"three", cn:"三"}, {en:"Thursday", cn:"星期四"}, {en:"ticket", cn:"票"},
+            {en:"tiger", cn:"老虎"}, {en:"time", cn:"時間"}, {en:"tired", cn:"累"}, {en:"to", cn:"去/給"},
+            {en:"today", cn:"今天"}, {en:"together", cn:"一起"}, {en:"tomato", cn:"番茄"}, {en:"tomorrow", cn:"明天"},
+            {en:"tonight", cn:"今晚"}, {en:"too", cn:"太/也"}, {en:"tooth", cn:"牙齒"}, {en:"touch", cn:"摸"},
+            {en:"towel", cn:"毛巾"}, {en:"town", cn:"城鎮"}, {en:"toy", cn:"玩具"}, {en:"traffic", cn:"交通"},
+            {en:"train", cn:"火車"}, {en:"tree", cn:"樹"}, {en:"trip", cn:"旅行"}, {en:"trouble", cn:"麻煩"},
+            {en:"truck", cn:"卡車"}, {en:"true", cn:"真實"}, {en:"try", cn:"嘗試"}, {en:"Tuesday", cn:"星期二"},
+            {en:"turn", cn:"轉/輪流"}, {en:"twelve", cn:"十二"}, {en:"twenty", cn:"二十"}, {en:"two", cn:"二"},
+            {en:"typhoon", cn:"颱風"}, {en:"umbrella", cn:"雨傘"}, {en:"uncle", cn:"叔叔/伯伯"}, {en:"under", cn:"在下面"},
+            {en:"understand", cn:"了解"}, {en:"unhappy", cn:"不快樂"}, {en:"uniform", cn:"制服"}, {en:"until", cn:"直到"},
+            {en:"up", cn:"向上"}, {en:"USA", cn:"美國"}, {en:"use", cn:"使用"}, {en:"useful", cn:"有用"},
+            {en:"usually", cn:"通常"}, {en:"vacation", cn:"假期"}, {en:"vegetable", cn:"蔬菜"}, {en:"very", cn:"非常"},
+            {en:"video", cn:"影片"}, {en:"visit", cn:"拜訪"}, {en:"voice", cn:"聲音"}, {en:"wait", cn:"等"},
+            {en:"waiter", cn:"男服務生"}, {en:"waitress", cn:"女服務生"}, {en:"wake", cn:"醒來"}, {en:"walk", cn:"走路"},
+            {en:"wall", cn:"牆"}, {en:"want", cn:"想要"}, {en:"warm", cn:"溫暖"}, {en:"wash", cn:"洗"},
+            {en:"watch", cn:"手錶/看"}, {en:"water", cn:"水"}, {en:"way", cn:"路/方法"}, {en:"we", cn:"我們"},
+            {en:"weak", cn:"虛弱"}, {en:"wear", cn:"穿"}, {en:"weather", cn:"天氣"}, {en:"Wednesday", cn:"星期三"},
+            {en:"week", cn:"週"}, {en:"weekend", cn:"週末"}, {en:"welcome", cn:"歡迎"}, {en:"well", cn:"好/井"},
+            {en:"west", cn:"西"}, {en:"wet", cn:"濕"}, {en:"what", cn:"什麼"}, {en:"when", cn:"何時"},
+            {en:"where", cn:"哪裡"}, {en:"whether", cn:"是否"}, {en:"which", cn:"哪一個"}, {en:"white", cn:"白色"},
+            {en:"who", cn:"誰"}, {en:"whose", cn:"誰的"}, {en:"why", cn:"為什麼"}, {en:"wife", cn:"妻子"},
+            {en:"will", cn:"將會"}, {en:"win", cn:"贏"}, {en:"wind", cn:"風"}, {en:"window", cn:"窗戶"},
+            {en:"windy", cn:"風大"}, {en:"winter", cn:"冬天"}, {en:"wise", cn:"聰明/明智"}, {en:"wish", cn:"希望"},
+            {en:"with", cn:"和/用"}, {en:"without", cn:"沒有"}, {en:"woman", cn:"女人"}, {en:"wonderful", cn:"美好的"},
+            {en:"word", cn:"字"}, {en:"work", cn:"工作"}, {en:"workbook", cn:"作業本"}, {en:"worker", cn:"工人"},
+            {en:"world", cn:"世界"}, {en:"worry", cn:"擔心"}, {en:"write", cn:"寫"}, {en:"writer", cn:"作家"},
+            {en:"wrong", cn:"錯"}, {en:"year", cn:"年"}, {en:"yellow", cn:"黃色"}, {en:"yes", cn:"是"},
+            {en:"yesterday", cn:"昨天"}, {en:"yet", cn:"還"}, {en:"you", cn:"你/你們"}, {en:"young", cn:"年輕"},
+            {en:"your", cn:"你的"}, {en:"zoo", cn:"動物園"}
+        ];
+
+        // --- 2. CONFIG & STATE ---
+        const ITEMS_PER_PAGE = 12; // Adjusted for mobile screen height
+        let currentPage = 0;
+        let mode = 'test'; // 'test' or 'study'
+        
+        // Element References
+        const grid = document.getElementById('grid');
+        const studyContainer = document.getElementById('study-list-container');
+        const quizView = document.getElementById('quiz-view');
+        const studyView = document.getElementById('study-view');
+        const quizFooter = document.getElementById('quiz-footer');
+        const progressLabel = document.getElementById('progress-info');
+        const btnCheck = document.getElementById('btn-check');
+        const btnNext = document.getElementById('btn-next');
+        const tabTest = document.getElementById('tab-test');
+        const tabStudy = document.getElementById('tab-study');
+
+        // --- 3. FUNCTIONS ---
+
+        function switchMode(selectedMode) {
+            mode = selectedMode;
+            if (mode === 'test') {
+                quizView.style.display = 'block';
+                studyView.style.display = 'none';
+                quizFooter.style.display = 'flex';
+                tabTest.classList.add('active');
+                tabStudy.classList.remove('active');
+            } else {
+                quizView.style.display = 'none';
+                studyView.style.display = 'block';
+                quizFooter.style.display = 'none';
+                tabTest.classList.remove('active');
+                tabStudy.classList.add('active');
+                renderStudyList();
+            }
+        }
+
+        function loadPage() {
+            grid.innerHTML = "";
+            btnNext.style.display = "none";
+            btnCheck.style.display = "block";
+            btnCheck.innerText = "Check Answers";
+            btnCheck.disabled = false;
+
+            const start = currentPage * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const currentWords = rawData.slice(start, end);
+            const totalPages = Math.ceil(rawData.length / ITEMS_PER_PAGE);
+            
+            progressLabel.innerText = `Page ${currentPage + 1} of ${totalPages} (${rawData.length} words total)`;
+
+            currentWords.forEach((word, index) => {
+                const uniqueId = `input-${index}`;
+                const div = document.createElement('div');
+                div.className = 'word-card';
+                div.innerHTML = `
+                    <span class="cn-label">${word.cn}</span>
+                    <div class="input-wrapper">
+                        <input type="text" id="${uniqueId}" data-answer="${word.en}" placeholder="Type here..." autocomplete="off">
+                        <button class="btn-help" onclick="showHint('${uniqueId}')">?</button>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+
+            if(currentWords.length === 0) {
+                grid.innerHTML = "<div style='text-align:center; padding:50px;'>Test Complete!</div>";
+                btnCheck.style.display = "none";
+            }
+            
+            // Scroll to top
+            document.querySelector('main').scrollTop = 0;
+        }
+
+        function checkAnswers() {
+            const inputs = document.querySelectorAll('#grid input');
+            let allCorrect = true;
+
+            inputs.forEach(input => {
+                const userVal = input.value.trim().toLowerCase();
+                const answerRaw = input.dataset.answer.toLowerCase();
+                
+                // Logic to handle "bicycle (bike)" -> accept "bicycle" OR "bike"
+                let validAnswers = [answerRaw];
+                if (answerRaw.includes('(')) {
+                    // Extract parts: "bicycle (bike)" -> ["bicycle", "bike"]
+                    const parts = answerRaw.replace(')', '').split('(');
+                    validAnswers = parts.map(p => p.trim());
+                }
+
+                input.classList.remove('correct', 'wrong');
+
+                if (validAnswers.includes(userVal)) {
+                    input.classList.add('correct');
+                } else {
+                    input.classList.add('wrong');
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect) {
+                btnCheck.style.display = "none";
+                btnNext.style.display = "block";
+            } else {
+                btnCheck.innerText = "Try Again / Fix Errors";
+            }
+        }
+
+        function nextPage() {
+            currentPage++;
+            loadPage();
+        }
+
+        function showHint(inputId) {
+            const input = document.getElementById(inputId);
+            input.value = input.dataset.answer; // Reveal answer
+            input.focus();
+        }
+
+        function renderStudyList() {
+            // Sort alphabetically by English word
+            const sortedWords = [...rawData].sort((a, b) => a.en.localeCompare(b.en));
+            
+            studyContainer.innerHTML = "";
+            sortedWords.forEach(word => {
+                const row = document.createElement('div');
+                row.className = 'study-row';
+                row.innerHTML = `
+                    <span class="study-en">${word.en}</span>
+                    <span class="study-cn">${word.cn}</span>
+                `;
+                studyContainer.appendChild(row);
+            });
+        }
+
+        // Initialize
+        loadPage();
+
+    </script>
+</body>
+</html>
