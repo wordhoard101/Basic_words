@@ -12,8 +12,8 @@
             --danger: #e63946;
             --bg: #f8f9fa;
             --card-bg: #ffffff;
-            --selected: #ff9f1c;
             --text: #2c3e50;
+            --gray: #e9ecef;
         }
 
         body {
@@ -36,230 +36,249 @@
             justify-content: space-between;
             align-items: center;
             z-index: 100;
+            height: 60px;
+            flex-shrink: 0;
         }
-
-        h1 { margin: 0; font-size: 1.2rem; color: #333; }
 
         .btn-nav {
             background: #f1f3f5;
-            border: none;
-            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            padding: 8px 15px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             color: #555;
             font-size: 0.9rem;
+            transition: background 0.2s;
         }
+        .btn-nav:hover { background: #e9ecef; }
+        .btn-primary-nav { background: var(--primary); color: white; border: none; }
+        .btn-primary-nav:hover { background: var(--secondary); }
+
+        h1 { margin: 0; font-size: 1.1rem; color: #333; font-weight: 700; }
 
         /* --- MAIN AREA --- */
         main {
             flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            max-width: 900px;
+            overflow: hidden; 
+            position: relative;
+            width: 100%;
+            max-width: 800px;
             margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        /* --- HOME DASHBOARD --- */
-        .dashboard-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        
-        .mode-btn {
-            display: block;
-            width: 100%;
-            padding: 1.2rem;
-            margin: 10px 0;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-            color: white;
-        }
-        .mode-btn:active { transform: scale(0.98); }
-        .btn-spell { background: linear-gradient(135deg, var(--primary), var(--secondary)); }
-        .btn-match { background: linear-gradient(135deg, var(--success), #20bf6b); }
-
-        /* --- SPELLING GAME (Side-by-Side) --- */
-        .spell-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            padding-bottom: 80px;
         }
 
-        .spell-row {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: grid;
-            grid-template-columns: 1fr 1.2fr; /* Left (Meaning) vs Right (Input) */
-            gap: 15px;
-            align-items: center;
-        }
-
-        .spell-meaning {
-            font-size: 1rem;
-            color: #444;
-            font-weight: 500;
-            text-align: right;
-            border-right: 2px solid #f0f0f0;
-            padding-right: 15px;
-        }
-
-        .spell-input-container {
-            position: relative;
-        }
-
-        .spell-input {
+        .view-section {
+            display: none;
+            flex-direction: column;
+            height: 100%;
             width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 2px solid #eee;
-            border-radius: 6px;
-            outline: none;
-            box-sizing: border-box; /* Important for width */
+            padding: 15px;
+            box-sizing: border-box;
+            overflow-y: auto;
         }
-        .spell-input:focus { border-color: var(--primary); }
-        .spell-input.correct { border-color: var(--success); background: #e6fffa; }
-        .spell-input.wrong { border-color: var(--danger); background: #fff5f5; }
+        .view-section.active { display: flex; }
 
-        .hint-btn {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #ffd43b;
-            color: #fff;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
+        /* --- DASHBOARD STYLES --- */
+        .dashboard-container {
             display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* --- MATCHING GAME (Two Columns) --- */
-        .match-layout {
-            display: flex;
+            flex-direction: column;
             gap: 15px;
-            height: calc(100vh - 140px); /* Fill available space */
             padding-bottom: 20px;
         }
 
-        .match-col {
+        /* Mode Toggle Switch */
+        .mode-toggle-container {
+            background: white;
+            padding: 5px;
+            border-radius: 12px;
+            display: flex;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .mode-option {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .col-header {
+            padding: 12px;
             text-align: center;
-            font-weight: bold;
-            color: #888;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .match-card {
-            flex: 1; /* Distribute height equally */
-            background: white;
-            border: 2px solid #e9ecef;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 10px;
-            font-weight: 600;
-            color: #444;
             cursor: pointer;
+            font-weight: bold;
+            color: #666;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            word-break: break-word;
         }
-
-        .match-card.selected { border-color: var(--primary); background-color: #e7f5ff; transform: scale(0.98); }
-        .match-card.matched { opacity: 0; pointer-events: none; }
-        .match-card.error { border-color: var(--danger); background-color: #ffe3e3; animation: shake 0.4s; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            background: white;
-            padding: 15px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .action-btn {
-            background: var(--success);
+        .mode-option.active {
             color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        /* Color for Spelling Active */
+        .mode-option.active[data-mode="spell"] { background: var(--primary); }
+        /* Color for Matching Active */
+        .mode-option.active[data-mode="match"] { background: var(--success); }
+
+        .random-btn {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
-            max-width: 300px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+        .random-btn:active { transform: scale(0.98); }
         
-        /* Mobile adjustment for Spelling */
-        @media (max-width: 480px) {
-            .spell-row { grid-template-columns: 1fr; gap: 8px; }
-            .spell-meaning { text-align: left; border-right: none; border-bottom: 1px solid #eee; padding-bottom: 8px; padding-right: 0; }
+        /* A-Z Grid on Dashboard */
+        .dashboard-az-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
         }
+        .dash-letter-btn {
+            aspect-ratio: 1;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #444;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #e9ecef;
+            transition: transform 0.1s;
+        }
+        .dash-letter-btn:active { transform: translateY(2px); box-shadow: none; }
+        .dash-letter-btn.disabled { opacity: 0.4; pointer-events: none; background: #f8f9fa; }
+
+        .section-label {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        /* --- STUDY MODE STYLES --- */
+        .study-controls { flex-shrink: 0; margin-bottom: 10px; }
+        .search-box {
+            width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; margin-bottom: 10px; box-sizing: border-box;
+        }
+        .az-filter {
+            display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        .az-filter::-webkit-scrollbar { display: none; }
+        .filter-btn {
+            background: white; border: 1px solid #dee2e6; border-radius: 4px; min-width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; color: #555; cursor: pointer; flex-shrink: 0;
+        }
+        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .study-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; align-content: start; overflow-y: auto;
+        }
+        .study-item {
+            background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; justify-content: center;
+        }
+        .study-en { font-weight: bold; color: var(--primary); margin-bottom: 2px; }
+        .study-cn { font-size: 0.9rem; color: #555; }
+        .pagination-bar {
+            flex-shrink: 0; display: flex; justify-content: center; align-items: center; gap: 15px; padding-top: 10px; border-top: 1px solid #eee; margin-top: 5px;
+        }
+        .page-info { font-size: 0.9rem; color: #666; }
+
+        /* --- SPELLING GAME --- */
+        .spell-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 80px; }
+        .spell-row {
+            background: white; padding: 12px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; align-items: center;
+        }
+        .spell-meaning { text-align: right; border-right: 2px solid #f0f0f0; padding-right: 10px; font-weight: 500; color: #444; }
+        .spell-input-container { position: relative; }
+        .spell-input { width: 100%; padding: 8px; font-size: 1rem; border: 2px solid #eee; border-radius: 6px; box-sizing: border-box; }
+        .spell-input:focus { border-color: var(--primary); outline: none; }
+        .spell-input.correct { border-color: var(--success); background: #e6fffa; }
+        .spell-input.wrong { border-color: var(--danger); background: #fff5f5; }
+        .hint-btn { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: #ffd43b; color: #fff; width: 22px; height: 22px; border-radius: 50%; border: none; font-weight: bold; cursor: pointer; }
+
+        /* --- MATCHING GAME --- */
+        .match-layout { display: flex; gap: 10px; height: 100%; padding-bottom: 60px; }
+        .match-col { flex: 1; display: flex; flex-direction: column; gap: 8px; height: 100%; }
+        .col-header { text-align: center; font-weight: bold; color: #888; font-size: 0.85rem; text-transform: uppercase; }
+        .match-card {
+            flex: 1; background: white; border: 2px solid #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 5px; font-weight: 600; color: #444; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; word-break: break-word;
+        }
+        .match-card.selected { border-color: var(--primary); background-color: #e7f5ff; transform: scale(0.98); }
+        .match-card.matched { opacity: 0; pointer-events: none; }
+        .match-card.error { border-color: var(--danger); background-color: #ffe3e3; animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        /* Footer Controls */
+        footer {
+            position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: center; z-index: 200;
+        }
+        .action-btn { background: var(--success); color: white; border: none; padding: 10px 30px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; max-width: 300px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .action-btn:active { transform: translateY(2px); }
+
     </style>
 </head>
 <body>
 
     <nav>
-        <button class="btn-nav" id="btn-home" onclick="goHome()" style="visibility: hidden;">&#8592; Home</button>
+        <button class="btn-nav btn-primary-nav" onclick="goToStudy()">📖 Study</button>
         <h1 id="page-title">English Mastery</h1>
-        <div style="width: 50px;"></div> </nav>
+        <button class="btn-nav" onclick="goHome()">🏠 Home</button>
+    </nav>
 
     <main>
         <div id="view-home" class="view-section active">
-            <div class="dashboard-card">
-                <h2>Welcome</h2>
-                <p style="color:#666; margin-bottom: 2rem;">Select a game mode to begin practice.</p>
+            <div class="dashboard-container">
                 
-                <button class="mode-btn btn-spell" onclick="startSpelling()">
-                    ✍️ Spelling Practice
-                </button>
+                <div class="section-label">1. Choose Game Mode</div>
+                <div class="mode-toggle-container">
+                    <div class="mode-option active" id="opt-spell" data-mode="spell" onclick="setGameMode('spell')">
+                        ✍️ Spelling
+                    </div>
+                    <div class="mode-option" id="opt-match" data-mode="match" onclick="setGameMode('match')">
+                        🧩 Matching
+                    </div>
+                </div>
+
+                <div class="section-label">2. Start Game</div>
                 
-                <button class="mode-btn btn-match" onclick="startMatching()">
-                    🧩 Matching Game
+                <button class="random-btn" onclick="startRandomGame()">
+                    🎲 Start Random <span id="lbl-random-count">10</span>
                 </button>
+
+                <div class="section-label">OR Browse by Letter</div>
+                
+                <div class="dashboard-az-grid" id="dashboard-az-grid">
+                    </div>
             </div>
-            <div style="text-align: center; color: #999; font-size: 0.9rem;">
-                Loaded Words: <span id="word-count">0</span>
+            
+            <div style="text-align: center; color: #bbb; font-size: 0.8rem; margin-top: 20px;">
+                Total Words: <span id="word-count">0</span>
+            </div>
+        </div>
+
+        <div id="view-study" class="view-section">
+            <div class="study-controls">
+                <input type="text" id="study-search" class="search-box" placeholder="Search words..." oninput="handleSearch()">
+                <div class="az-filter" id="az-filter">
+                    <div class="filter-btn active" onclick="filterByLetter('ALL')">ALL</div>
+                </div>
+            </div>
+            <div id="study-grid" class="study-grid"></div>
+            <div class="pagination-bar">
+                <button class="btn-nav" onclick="changeStudyPage(-1)">Previous</button>
+                <span id="study-page-info" class="page-info">1 / 1</span>
+                <button class="btn-nav" onclick="changeStudyPage(1)">Next</button>
             </div>
         </div>
 
@@ -271,11 +290,11 @@
             <div class="match-layout">
                 <div class="match-col">
                     <div class="col-header">Words</div>
-                    <div id="col-left" class="match-col" style="height:100%"></div>
+                    <div id="col-left" class="match-col"></div>
                 </div>
                 <div class="match-col">
                     <div class="col-header">Meanings</div>
-                    <div id="col-right" class="match-col" style="height:100%"></div>
+                    <div id="col-right" class="match-col"></div>
                 </div>
             </div>
         </div>
@@ -283,15 +302,14 @@
 
     <footer id="footer-controls" style="display: none;">
         <button id="btn-check" class="action-btn" onclick="checkSpelling()">Check Answers</button>
-        <button id="btn-next-match" class="action-btn" style="display:none;" onclick="startMatching()">Next Round</button>
+        <button id="btn-next-match" class="action-btn" style="display:none;" onclick="startMatchingRound()">Next Round</button>
     </footer>
 
     <script>
         // --- DATA ---
-        // PASTE YOUR DATA BELOW
-        // Format: { en: "English Word", cn: "Chinese Meaning" },
+        // PASTE YOUR DATA HERE
         const rawData = [
-            {en:"a (an)", cn:"一個"}, {en:"a few", cn:"一些"}, {en:"a little", cn:"一點"}, {en:"a lot", cn:"很多"},
+ {en:"a (an)", cn:"一個"}, {en:"a few", cn:"一些"}, {en:"a little", cn:"一點"}, {en:"a lot", cn:"很多"},
             {en:"able", cn:"可以/會"}, {en:"about", cn:"大概"}, {en:"above", cn:"之上"}, {en:"afraid", cn:"害怕"},
             {en:"after", cn:"之後"}, {en:"afternoon", cn:"下午"}, {en:"again", cn:"再一次"}, {en:"age", cn:"年紀"},
             {en:"ago", cn:"以前"}, {en:"agree", cn:"同意"}, {en:"air", cn:"空氣"}, {en:"airplane (plane)", cn:"飛機"},
@@ -548,131 +566,281 @@
         ];
 
         // --- STATE ---
-        let currentBatch = [];
-        const BATCH_SIZE = 6; // Number of items per round
+        let currentGameMode = 'spell'; // 'spell' or 'match'
+        let currentLetter = 'ALL';
         
-        // Matching Game State
+        // Data subset for the current game
+        let activeGameData = [];
+
+        // Study Mode State
+        let studyPage = 0;
+        const STUDY_PER_PAGE = 16;
+        let studySearch = '';
+        let studyFilterLetter = 'ALL';
+
+        // Game Logic State
         let selectedLeft = null;
         let selectedRight = null;
         let matchedCount = 0;
         let isProcessing = false;
 
-        // --- INIT ---
+        // --- INITIALIZATION ---
         window.onload = function() {
             document.getElementById('word-count').innerText = rawData.length;
+            rawData.sort((a,b) => a.en.localeCompare(b.en)); // Ensure sorted
+            
+            // 1. Generate A-Z for Study Mode
+            generateAZButtons('az-filter', (l) => filterByLetter(l));
+
+            // 2. Generate A-Z for Dashboard
+            generateAZButtons('dashboard-az-grid', (l) => startLetterGame(l));
+
+            // 3. Initial Study Render
+            renderStudy();
         };
 
-        // --- NAVIGATION ---
-        function goHome() {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-home').classList.add('active');
-            document.getElementById('btn-home').style.visibility = 'hidden';
-            document.getElementById('footer-controls').style.display = 'none';
-            document.getElementById('page-title').innerText = "English Mastery";
+        function generateAZButtons(containerId, callback) {
+            const container = document.getElementById(containerId);
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            alphabet.forEach(letter => {
+                const btn = document.createElement('div');
+                // Check if we have words for this letter to style it
+                const hasWords = rawData.some(w => w.en.toUpperCase().startsWith(letter));
+                
+                btn.innerText = letter;
+                if (containerId === 'az-filter') {
+                    btn.className = 'filter-btn';
+                    if(!hasWords) btn.style.opacity = '0.5';
+                } else {
+                    btn.className = 'dash-letter-btn';
+                    if(!hasWords) btn.classList.add('disabled');
+                }
+
+                btn.onclick = () => {
+                    if(hasWords || containerId === 'az-filter') callback(letter);
+                };
+                container.appendChild(btn);
+            });
         }
 
-        function showView(viewId, title) {
+        // --- DASHBOARD LOGIC ---
+        function setGameMode(mode) {
+            currentGameMode = mode;
+            document.getElementById('opt-spell').classList.remove('active');
+            document.getElementById('opt-match').classList.remove('active');
+            document.getElementById(`opt-${mode}`).classList.add('active');
+            
+            // Update Random button text
+            const count = mode === 'spell' ? '10' : '5';
+            document.getElementById('lbl-random-count').innerText = count;
+            
+            // Update Random button border color for visual feedback
+            const btn = document.querySelector('.random-btn');
+            if(mode === 'spell') {
+                btn.style.borderColor = 'var(--primary)';
+                btn.style.color = 'var(--primary)';
+            } else {
+                btn.style.borderColor = 'var(--success)';
+                btn.style.color = 'var(--success)';
+            }
+        }
+
+        function startRandomGame() {
+            // Pick random words from ENTIRE list
+            activeGameData = [...rawData].sort(() => 0.5 - Math.random());
+            launchGame();
+        }
+
+        function startLetterGame(letter) {
+            // Filter by letter
+            activeGameData = rawData.filter(item => item.en.toUpperCase().startsWith(letter));
+            // Shuffle them
+            activeGameData.sort(() => 0.5 - Math.random());
+            launchGame();
+        }
+
+        function launchGame() {
+            if (activeGameData.length === 0) {
+                alert("No words found for this selection.");
+                return;
+            }
+
+            if (currentGameMode === 'spell') {
+                initSpellingGame();
+            } else {
+                initMatchingGame();
+            }
+        }
+
+        // --- NAVIGATION ---
+        function switchView(viewId, title) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            document.getElementById('btn-home').style.visibility = 'visible';
             document.getElementById('page-title').innerText = title;
+            
+            // Footer Logic
+            const isGame = viewId === 'view-spelling' || viewId === 'view-matching';
+            document.getElementById('footer-controls').style.display = isGame ? 'flex' : 'none';
         }
 
-        // --- UTILS ---
-        function getRandomItems(count) {
-            const shuffled = [...rawData].sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, count);
+        function goHome() {
+            switchView('view-home', 'English Mastery');
+        }
+
+        function goToStudy() {
+            switchView('view-study', 'Study List');
+        }
+
+        // --- STUDY MODE ---
+        function handleSearch() {
+            studySearch = document.getElementById('study-search').value.toLowerCase();
+            studyPage = 0;
+            renderStudy();
+        }
+
+        function filterByLetter(letter) {
+            studyFilterLetter = letter;
+            studySearch = '';
+            document.getElementById('study-search').value = '';
+            studyPage = 0;
+            
+            // Highlight active
+            document.querySelectorAll('#az-filter .filter-btn').forEach(b => {
+                b.classList.toggle('active', b.innerText === letter);
+            });
+            renderStudy();
+        }
+
+        function renderStudy() {
+            const grid = document.getElementById('study-grid');
+            grid.innerHTML = '';
+
+            let filtered = rawData;
+            if (studySearch) {
+                filtered = rawData.filter(item => item.en.toLowerCase().includes(studySearch) || item.cn.includes(studySearch));
+            } else if (studyFilterLetter !== 'ALL') {
+                filtered = rawData.filter(item => item.en.toUpperCase().startsWith(studyFilterLetter));
+            }
+
+            const totalPages = Math.ceil(filtered.length / STUDY_PER_PAGE);
+            if (studyPage >= totalPages) studyPage = Math.max(0, totalPages - 1);
+            
+            const start = studyPage * STUDY_PER_PAGE;
+            const end = start + STUDY_PER_PAGE;
+            const pageData = filtered.slice(start, end);
+
+            if (pageData.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#999;">No words found</div>';
+            } else {
+                pageData.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'study-item';
+                    el.innerHTML = `<div class="study-en">${item.en}</div><div class="study-cn">${item.cn}</div>`;
+                    grid.appendChild(el);
+                });
+            }
+            document.getElementById('study-page-info').innerText = totalPages === 0 ? "0 / 0" : `${studyPage + 1} / ${totalPages}`;
+        }
+
+        function changeStudyPage(dir) {
+            studyPage += dir;
+            renderStudy();
+            document.getElementById('study-grid').scrollTop = 0;
         }
 
         // --- SPELLING GAME ---
-        function startSpelling() {
-            currentBatch = getRandomItems(10); // 10 items for spelling
+        function initSpellingGame() {
+            // Take up to 10 words
+            const gameSet = activeGameData.slice(0, 10);
             const container = document.getElementById('spelling-container');
             container.innerHTML = '';
 
-            currentBatch.forEach((item, index) => {
+            gameSet.forEach((item, index) => {
                 const row = document.createElement('div');
                 row.className = 'spell-row';
                 row.innerHTML = `
                     <div class="spell-meaning">${item.cn}</div>
                     <div class="spell-input-container">
-                        <input type="text" class="spell-input" id="spell-${index}" autocomplete="off" placeholder="Type answer...">
-                        <button class="hint-btn" tabindex="-1" onclick="showHint(${index}, '${item.en.replace(/'/g, "\\'")}')">?</button>
+                        <input type="text" class="spell-input" id="spell-${index}" 
+                            data-ans="${item.en}" autocomplete="off" placeholder="Type...">
+                        <button class="hint-btn" tabindex="-1" onclick="showHint('spell-${index}', '${item.en.replace(/'/g, "\\'")}')">?</button>
                     </div>
                 `;
                 container.appendChild(row);
             });
 
-            showView('view-spelling', 'Spelling Practice');
-            document.getElementById('footer-controls').style.display = 'flex';
+            switchView('view-spelling', 'Spelling Practice');
             document.getElementById('btn-check').style.display = 'block';
             document.getElementById('btn-next-match').style.display = 'none';
         }
 
-        function showHint(index, answer) {
-            const input = document.getElementById(`spell-${index}`);
-            input.value = answer;
-            input.focus();
+        function showHint(id, ans) {
+            document.getElementById(id).value = ans;
+            document.getElementById(id).focus();
         }
 
         function checkSpelling() {
             let allCorrect = true;
-            currentBatch.forEach((item, index) => {
-                const input = document.getElementById(`spell-${index}`);
-                const userVal = input.value.trim().toLowerCase();
-                const correctVal = item.en.toLowerCase();
-                
-                // Simple cleanup for comparison (remove brackets if user didn't type them, strictly speaking)
-                // But generally exact match is better for learning
-                if (userVal === correctVal) {
-                    input.classList.add('correct');
-                    input.classList.remove('wrong');
+            const inputs = document.querySelectorAll('.spell-input');
+            inputs.forEach(inp => {
+                const userVal = inp.value.trim().toLowerCase();
+                const correctVal = inp.dataset.ans.toLowerCase();
+                const cleanCorrect = correctVal.split('(')[0].trim(); // Handle "a (an)" -> "a"
+
+                if (userVal === correctVal || userVal === cleanCorrect) {
+                    inp.classList.add('correct');
+                    inp.classList.remove('wrong');
                 } else {
-                    input.classList.add('wrong');
-                    input.classList.remove('correct');
+                    inp.classList.add('wrong');
+                    inp.classList.remove('correct');
                     allCorrect = false;
                 }
             });
 
             if (allCorrect) {
-                alert("Perfect! Well done.");
-                goHome();
+                setTimeout(() => { alert("Perfect! Well done."); goHome(); }, 100);
             }
         }
 
         // --- MATCHING GAME ---
-        function startMatching() {
-            currentBatch = getRandomItems(BATCH_SIZE);
+        function initMatchingGame() {
+            // For matching, we need a smaller batch, say 5
+            // But activeGameData might be large. Let's slice the first 5 of the shuffled list.
+            startMatchingRound();
+            switchView('view-matching', 'Matching Game');
+            document.getElementById('btn-check').style.display = 'none';
+        }
+
+        function startMatchingRound() {
+            // Take top 5 from activeGameData, remove them from pool if you wanted progressive,
+            // but for now let's just take 5 random from the selection
+            // To make it interesting, let's re-shuffle activeGameData just in case
+            activeGameData.sort(() => 0.5 - Math.random());
+            const roundSet = activeGameData.slice(0, 5);
+
             matchedCount = 0;
             selectedLeft = null;
             selectedRight = null;
+            document.getElementById('btn-next-match').style.display = 'none';
 
-            // Prepare Columns
             const leftCol = document.getElementById('col-left');
             const rightCol = document.getElementById('col-right');
             leftCol.innerHTML = '';
             rightCol.innerHTML = '';
 
-            // 1. Prepare data for Left (Words) and Right (Meanings)
-            // We give them IDs to track which one matches which
-            let leftItems = currentBatch.map(item => ({ id: item.en, text: item.en, type: 'left' }));
-            let rightItems = currentBatch.map(item => ({ id: item.en, text: item.cn, type: 'right' }));
+            // Create pairs
+            let leftItems = roundSet.map(i => ({ id: i.en, text: i.en, type: 'left' }));
+            let rightItems = roundSet.map(i => ({ id: i.en, text: i.cn, type: 'right' }));
 
-            // 2. Shuffle independently
+            // Shuffle sides independenty
             leftItems.sort(() => Math.random() - 0.5);
             rightItems.sort(() => Math.random() - 0.5);
 
-            // 3. Render
-            leftItems.forEach(item => leftCol.appendChild(createMatchCard(item)));
-            rightItems.forEach(item => rightCol.appendChild(createMatchCard(item)));
-
-            showView('view-matching', 'Matching Game');
-            document.getElementById('footer-controls').style.display = 'flex';
-            document.getElementById('btn-check').style.display = 'none';
-            document.getElementById('btn-next-match').style.display = 'none'; // Only show when done
+            leftItems.forEach(i => leftCol.appendChild(createCard(i)));
+            rightItems.forEach(i => rightCol.appendChild(createCard(i)));
         }
 
-        function createMatchCard(item) {
+        function createCard(item) {
             const el = document.createElement('div');
             el.className = 'match-card';
             el.innerText = item.text;
@@ -688,55 +856,41 @@
             el.classList.add('selected');
 
             if (el.dataset.type === 'left') {
-                if (selectedLeft) selectedLeft.classList.remove('selected'); // Switch selection
+                if (selectedLeft) selectedLeft.classList.remove('selected');
                 selectedLeft = el;
             } else {
-                if (selectedRight) selectedRight.classList.remove('selected'); // Switch selection
+                if (selectedRight) selectedRight.classList.remove('selected');
                 selectedRight = el;
             }
 
-            // Check if we have both sides selected
             if (selectedLeft && selectedRight) {
-                checkMatch();
-            }
-        }
-
-        function checkMatch() {
-            isProcessing = true;
-            const left = selectedLeft;
-            const right = selectedRight;
-
-            if (left.dataset.id === right.dataset.id) {
-                // Match!
-                setTimeout(() => {
-                    left.classList.remove('selected');
-                    right.classList.remove('selected');
-                    left.classList.add('matched');
-                    right.classList.add('matched');
-                    
-                    selectedLeft = null;
-                    selectedRight = null;
-                    isProcessing = false;
-                    matchedCount++;
-
-                    if (matchedCount === BATCH_SIZE) {
-                        document.getElementById('btn-next-match').style.display = 'block';
-                    }
-                }, 300);
-            } else {
-                // No Match
-                setTimeout(() => {
-                    left.classList.add('error');
-                    right.classList.add('error');
-                }, 200);
-
-                setTimeout(() => {
-                    left.classList.remove('selected', 'error');
-                    right.classList.remove('selected', 'error');
-                    selectedLeft = null;
-                    selectedRight = null;
-                    isProcessing = false;
-                }, 800);
+                isProcessing = true;
+                if (selectedLeft.dataset.id === selectedRight.dataset.id) {
+                    setTimeout(() => {
+                        selectedLeft.classList.remove('selected');
+                        selectedRight.classList.remove('selected');
+                        selectedLeft.classList.add('matched');
+                        selectedRight.classList.add('matched');
+                        selectedLeft = null; selectedRight = null;
+                        isProcessing = false;
+                        matchedCount++;
+                        if (matchedCount === 5) {
+                            // If more words available, show Next Round, else alert done
+                            document.getElementById('btn-next-match').style.display = 'block';
+                        }
+                    }, 300);
+                } else {
+                    setTimeout(() => {
+                        selectedLeft.classList.add('error');
+                        selectedRight.classList.add('error');
+                    }, 200);
+                    setTimeout(() => {
+                        selectedLeft.classList.remove('selected', 'error');
+                        selectedRight.classList.remove('selected', 'error');
+                        selectedLeft = null; selectedRight = null;
+                        isProcessing = false;
+                    }, 800);
+                }
             }
         }
 
